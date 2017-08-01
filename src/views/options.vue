@@ -12,9 +12,9 @@
             <span>操作</span>
             <span>操作</span>
           </div>
-          <div class="accontMg" v-for="item in accounts" :keys="item.user_id">
-            <span>{{item.user_id}}</span>
-            <span>{{item.user_name}}</span>
+          <div class="accontMg" v-for="item in accounts" :keys="item.user_code">
+            <span>{{item.user_code}}</span>
+            <span>{{item.user_des}}</span>
             <span>{{item.status==0?'停用':'开启'}}</span>
             <span class="set" @click="openAccountEdit(item)">编辑</span>
             <span class="set" @click="accountResetPWD(item)">重置密码</span>
@@ -28,9 +28,9 @@
         <div class="condition0">
           <div class="left_card">
             <div class="r_tt">账号列表</div>
-            <p v-for="item in accounts" :keys="item.user_id" @click="checkUser(item)"
-               :class="{ active: item.user_id==checkedBtnId?true:false }">
-              <span class="r_name">{{item.user_name}}</span>
+            <p v-for="item in accounts" :keys="item.user_code" @click="checkUser(item)"
+               :class="{ active: item.user_code==checkedBtnId?true:false }">
+              <span class="r_name">{{item.user_des}}</span>
             </p>
           </div>
           <div class="right_card">
@@ -50,10 +50,10 @@
     <el-dialog class="actEdit" title="编辑" :visible.sync="actEditDialog">
       <el-form :model="actEditForm">
         <el-form-item label="登录账号" :label-width="formLabelWidth">
-          <el-input v-model="actEditForm.user_id" :disabled="true"></el-input>
+          <el-input v-model="actEditForm.user_code" :disabled="true"></el-input>
         </el-form-item>
         <el-form-item label="姓名" :label-width="formLabelWidth">
-          <el-input v-model="actEditForm.user_name"></el-input>
+          <el-input v-model="actEditForm.user_des"></el-input>
         </el-form-item>
         <el-form-item label="状态" :label-width="formLabelWidth">
           <el-select v-model="actEditForm.status" placeholder="请选择状态">
@@ -72,10 +72,10 @@
     <el-dialog class="actEdit" title="新建账号" :visible.sync="actAddDialog">
       <el-form :model="actAddForm">
         <el-form-item label="登录账号" :label-width="formLabelWidth" required>
-          <el-input v-model="actAddForm.user_id"></el-input>
+          <el-input v-model="actAddForm.user_code"></el-input>
         </el-form-item>
         <el-form-item label="姓名" :label-width="formLabelWidth">
-          <el-input v-model="actAddForm.user_name"></el-input>
+          <el-input v-model="actAddForm.user_des"></el-input>
         </el-form-item>
         <el-form-item label="状态" :label-width="formLabelWidth">
           <el-select v-model="actAddForm.status" placeholder="请选择状态">
@@ -123,14 +123,14 @@
         formLabelWidth: '120px',
         actEditDialog: false,
         actEditForm: {
-          user_name: '',
-          user_id: '',
+          user_des: '',
+          user_code: '',
           status: ''
         },
         actAddDialog: false,
         actAddForm: {
-          user_name: '',
-          user_id: '',
+          user_des: '',
+          user_code: '',
           status: '1'
         },
         actResetDialog: false,
@@ -147,11 +147,11 @@
 
     methods: {
       getAccounts() {
-        this.$resource(P_OPTIONS + 'get_accounts').get().then((response) => {
+        this.$resource(P_PRIVILEGE + 'accounts').get().then((response) => {
           if (response.body.code == 200) {
             this.accounts = response.body.data
             for (var i = 0; i < this.accounts.length; i++) {
-              if(this.accounts[i].user_id=='admin'){
+              if(this.accounts[i].user_code=='admin'){
                 this.accounts.splice(i,1)
               }
             }
@@ -162,7 +162,7 @@
         })
       },
       getMenus() {
-        this.$resource(P_OPTIONS + 'menus').get().then((response) => {
+        this.$resource(P_PRIVILEGE + 'menus').get().then((response) => {
           if (response.body.code == 200) {
             this.menus = response.body.data
           } else {
@@ -172,8 +172,8 @@
       },
       openAccountEdit(item){
         this.actEditForm = {
-          user_name: item.user_name,
-          user_id: item.user_id,
+          user_des: item.user_des,
+          user_code: item.user_code,
           status: item.status
         };
         this.actEditDialog = true
@@ -181,7 +181,7 @@
       saveAccountEdit(){
         let _this = this;
         let param = this.actEditForm
-        this.$resource(P_OPTIONS + 'edit_accounts').save({}, param).then((response) => {
+        this.$resource(P_PRIVILEGE + 'edit_accounts').save({}, param).then((response) => {
           if (response.body.code == 200) {
             _this.alertMsg("success", '修改成功');
             _this.actEditDialog = false;
@@ -196,20 +196,20 @@
       },
       openAccountAdd(){
         this.actAddForm = {
-          user_name: '',
-          user_id: '',
+          user_des: '',
+          user_code: '',
           status: '1'
         };
         this.actAddDialog = true
       },
       saveAccountAdd(){
-        if (!this.actAddForm.user_id) {
+        if (!this.actAddForm.user_code) {
           this.alertMsg("warning", '请填写登录账号')
           return
         }
         let param = this.actAddForm;
         let _this = this;
-        this.$resource(P_OPTIONS + 'add_accounts').save({}, param).then((response) => {
+        this.$resource(P_PRIVILEGE + 'add_accounts').save({}, param).then((response) => {
           if (response.body.code == 200) {
             _this.alertMsg("success", '添加成功');
             _this.actAddDialog = false;
@@ -222,12 +222,12 @@
         })
       },
       accountResetPWD(item){
-        this.resetName = item.user_name;
-        this.resetId = item.user_id;
+        this.resetName = item.user_des;
+        this.resetId = item.user_code;
         this.actResetDialog = true
       },
       saveReset(){
-        this.$resource(P_OPTIONS + 'reset_pwd').get({user_id: this.resetId}).then((response) => {
+        this.$resource(P_OPTIONS + 'reset_pwd').get({user_code: this.resetId}).then((response) => {
           if (response.body.code == 200) {
             this.alertMsg("success", '重置成功');
             this.actResetDialog = false
@@ -239,9 +239,9 @@
       checkUser(item){
 //          获取用户菜单权限
         this.loading = true
-        this.checkedBtnId = item.user_id;
-        this.checkedBtnName = item.user_name;
-        this.$resource(P_OPTIONS + 'get_account_rights').get({user_id: item.user_id}).then((response) => {
+        this.checkedBtnId = item.user_code;
+        this.checkedBtnName = item.user_des;
+        this.$resource(P_PRIVILEGE + 'account_menus').get({user_code: item.user_code}).then((response) => {
           if (response.body.code == 200) {
             for (let i = 0; i < response.body.data.length; i++) {
               response.body.data[i] = response.body.data[i].toString()
@@ -256,11 +256,11 @@
       },
       saveRights(){
         let param = {
-          user_id: this.checkedBtnId,
+          user_code: this.checkedBtnId,
           rights: this.checkMenuList
         }
         let _this = this;
-        this.$resource(P_OPTIONS + 'save_account_rights').save({}, param).then((response) => {
+        this.$resource(P_PRIVILEGE + 'update_account_menus').save({}, param).then((response) => {
           if (response.body.code == 200) {
             _this.alertMsg("success", '权限保存成功');
           } else {

@@ -8,9 +8,14 @@
       <div class="condition0">
         <div class="fl" style="margin-top: 5px;">时间范围：</div>
         <el-date-picker
-          class="date_p fl" v-model="date_range" size="small"
-          type="datetimerange" :editable="false" :clearable="false"
-          placeholder="选择时间范围">
+          class="date_p fl" v-model="date_begin" size="small"
+          type="datetime" :editable="false" :clearable="false"
+          placeholder="选择开始时间">
+        </el-date-picker>
+        <el-date-picker
+          class="date_p fl" v-model="date_end" size="small"
+          type="datetime" :editable="false" :clearable="false"
+          placeholder="选择结束时间">
         </el-date-picker>
       </div>
 
@@ -41,7 +46,7 @@
         <div class="fl c3f" v-show="3==radio">分级检索：</div>
         <div class="fl c3f" v-show="0==radio">时间范围：</div>
         <div v-show="1==radio">
-          <el-input class="m-input" size="small" placeholder="请输入工号或姓名" v-model="cust_info"></el-input>
+          <el-input class="m-input" size="small" placeholder="请输入学号或姓名" v-model="cust_info"></el-input>
         </div>
 
         <div v-show="2==radio">
@@ -66,9 +71,9 @@
         <div class="t-bd" v-loading.body="tb_loading">
           <el-table :data="reportArr" style="width: 100%" border
                     :default-sort="{prop: 'alarm_time', order: 'descending'}" max-height="500">
-            <el-table-column fixed prop="cust_id" label="工号" min-width="100" show-overflow-tooltip
+            <el-table-column fixed prop="student_id" label="学号" min-width="100" show-overflow-tooltip
                              sortable></el-table-column>
-            <el-table-column fixed prop="cust_name" label="姓名" min-width="100" show-overflow-tooltip
+            <el-table-column fixed prop="student_name" label="姓名" min-width="100" show-overflow-tooltip
                              sortable></el-table-column>
             <el-table-column prop="sche_begin_time" label="计划入寓时间" min-width="180" show-overflow-tooltip
                              sortable></el-table-column>
@@ -78,11 +83,11 @@
                              sortable></el-table-column>
             <el-table-column prop="out_time" label="实际出寓时间" min-width="180" show-overflow-tooltip
                              sortable></el-table-column>
-            <el-table-column prop="workshop_des" label="车间" min-width="100" show-overflow-tooltip
+            <el-table-column prop="section_des" label="阶段" min-width="100" show-overflow-tooltip
                              sortable></el-table-column>
-            <el-table-column prop="fleet_des" label="车队" min-width="100" show-overflow-tooltip
+            <el-table-column prop="grade_des" label="年级" min-width="100" show-overflow-tooltip
                              sortable></el-table-column>
-            <el-table-column prop="group_des" label="指导组" min-width="100" show-overflow-tooltip
+            <el-table-column prop="class_des" label="班级" min-width="100" show-overflow-tooltip
                              sortable></el-table-column>
             <el-table-column prop="apart_des" label="公寓" min-width="100" show-overflow-tooltip
                              sortable></el-table-column>
@@ -154,7 +159,8 @@
         levels: [],
         checkedLevels: [],
         // 时间
-        date_range: [],
+        date_begin:'',
+        date_end:'',
 
         timer: null,
         reportArr: [],
@@ -168,15 +174,16 @@
     },
     mounted () {
       let a = new Date().getTime() - 24 * 1000 * 60 * 60
-      this.date_range = [(new Date(a)).Format('yyyy-MM-dd hh:mm:ss'), (new Date()).Format('yyyy-MM-dd hh:mm:ss')]
+      this.date_begin = (new Date(a)).Format('yyyy-MM-dd hh:mm:ss')
+      this.date_end = (new Date()).Format('yyyy-MM-dd hh:mm:ss')
       this.search();
       this.getLevels();
     },
 
     methods: {
       exportExcel(){
-        let start = this.date_range[0] != null ?(new Date(this.date_range[0])).Format('yyyy-MM-dd hh:mm:ss')  : null
-        let end = this.date_range[1] != null ? (new Date(this.date_range[1])).Format('yyyy-MM-dd hh:mm:ss'): null
+        let start = this.date_begin!= null ? new Date(this.date_begin).Format('yyyy-MM-dd hh:mm:ss') : null
+        let end = this.date_end != null ? new Date(this.date_end).Format('yyyy-MM-dd hh:mm:ss') : null
         let params = {
           sleep_type: this.checked,
           search_type: this.radio,
@@ -208,8 +215,8 @@
         return result.substr(0, result.length - 1)
       },
       search(type){
-        let start = this.date_range[0] != null ? (new Date(this.date_range[0])).Format('yyyy-MM-dd hh:mm:ss') : null
-        let end = this.date_range[1] != null ? (new Date(this.date_range[1])).Format('yyyy-MM-dd hh:mm:ss')  : null
+        let start = this.date_begin!= null ? new Date(this.date_begin).Format('yyyy-MM-dd hh:mm:ss') : null
+        let end = this.date_end != null ? new Date(this.date_end).Format('yyyy-MM-dd hh:mm:ss') : null
         let params = {
           sleep_type: this.checked,
           search_type: this.radio,

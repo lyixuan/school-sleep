@@ -3,7 +3,7 @@
     <el-menu theme="dark" :default-active="activeIndex" class="el-menu-demo" mode="horizontal">
       <div class="app-name">
         <img :src="logo_url" height="30" class="h_logo"/>
-        <span class="app-name-text">{{app_name}}</span> <span class="app-sub-name">[{{depot_des}}]</span>
+        <span class="app-name-text">{{app_name}}</span> <span class="app-sub-name">[{{school_des}}]</span>
       </div>
       <el-menu-item index="2" style="display: none;">
 
@@ -25,7 +25,7 @@
       return {
         activeIndex: '1',
         s_name: '未登录',
-        depot_des: '未知',
+        school_des: '未知',
         app_name:'',
         logo_url: 'x.png'
       }
@@ -37,8 +37,8 @@
       getSession(){
         let u_session = JSON.parse(window.sessionStorage.getItem('u_session'))
         if (u_session) {
-          this.s_name = u_session.user_name
-          this.depot_des = u_session.depot_des
+          this.s_name = u_session.user_des
+          this.school_des = u_session.school_des
           this.app_name = u_session.app_name
           this.logo_url = u_session.logo_url
         } else {

@@ -1,17 +1,20 @@
 <template>
   <div class="report-search">
-    <!--<s-navi :nData="navi_text"></s-navi>-->
+    <s-navi :nData="navi_text"></s-navi>
     <div style="width: 100%;height: 100%;">
       <div class="condition">
-        <div class="bg-blue">级别设置</div>
+        <div class="bg-blue">操作</div>
         <div class="condition0 c1">
           <div class="rowbtn">
-            <span @click="openJWD">新增机务段</span>
-            <span @click="openCJ">新增车间</span>
-            <span @click="openCD">新增车队</span>
-            <span @click="openZDZ">新增指导组</span>
+            <span @click="openJWD">新增学校</span>
+            <span @click="openCJ">新增阶段</span>
+            <span @click="openCD">新增年级</span>
+            <span @click="openZDZ">新增班级</span>
             <span @click="openDel">删除分级</span>
           </div>
+        </div>
+        <div class="bg-blue">级别展示</div>
+        <div class="condition0 c1">
           <el-tree
             :data="levels"
             :props="defaultProps"
@@ -26,10 +29,10 @@
     <!--*******************************************-->
 
 
-    <!--机务段dialog-->
-    <el-dialog class="actEdit people_m" title="新增机务段" :visible.sync="actJWDDialog">
+    <!--学校dialog-->
+    <el-dialog class="actEdit people_m" title="新增学校" :visible.sync="actJWDDialog">
       <el-form :model="actForm">
-        <el-form-item label="机务段名" :label-width="formLabelWidth" required>
+        <el-form-item label="学校名" :label-width="formLabelWidth" required>
           <el-input v-model="actForm.show_name"></el-input>
         </el-form-item>
       </el-form>
@@ -39,14 +42,14 @@
       </div>
     </el-dialog>
 
-    <!--车间dialog-->
-    <el-dialog class="actEdit people_m" title="新增车间" :visible.sync="actCJDialog">
+    <!--阶段dialog-->
+    <el-dialog class="actEdit people_m" title="新增阶段" :visible.sync="actCJDialog">
       <el-form :model="actForm">
-        <el-form-item label="所属机务段" :label-width="formLabelWidth" required>
+        <el-form-item label="所属学校" :label-width="formLabelWidth" required>
           <el-cascader :options="level1" change-on-select
                        @change="handleChange2" v-model="actForm.upLevel"></el-cascader>
         </el-form-item>
-        <el-form-item label="车间名" :label-width="formLabelWidth" required>
+        <el-form-item label="阶段名" :label-width="formLabelWidth" required>
           <el-input v-model="actForm.show_name"></el-input>
         </el-form-item>
       </el-form>
@@ -57,13 +60,13 @@
     </el-dialog>
 
     <!--车对dialog-->
-    <el-dialog class="actEdit people_m" title="新增车队" :visible.sync="actCDDialog">
+    <el-dialog class="actEdit people_m" title="新增年级" :visible.sync="actCDDialog">
       <el-form :model="actForm">
-        <el-form-item label="所属车间" :label-width="formLabelWidth" required>
+        <el-form-item label="所属阶段" :label-width="formLabelWidth" required>
           <el-cascader :options="level2" change-on-select
                        @change="handleChange2" v-model="actForm.upLevel"></el-cascader>
         </el-form-item>
-        <el-form-item label="车队名" :label-width="formLabelWidth" required>
+        <el-form-item label="年级名" :label-width="formLabelWidth" required>
           <el-input v-model="actForm.show_name"></el-input>
         </el-form-item>
       </el-form>
@@ -73,14 +76,14 @@
       </div>
     </el-dialog>
 
-    <!--指导组dialog-->
-    <el-dialog class="actEdit people_m" title="新增指导组" :visible.sync="actZDZDialog">
+    <!--班级dialog-->
+    <el-dialog class="actEdit people_m" title="新增班级" :visible.sync="actZDZDialog">
       <el-form :model="actForm">
-        <el-form-item label="所属车队" :label-width="formLabelWidth" required>
+        <el-form-item label="所属年级" :label-width="formLabelWidth" required>
           <el-cascader :options="level3" change-on-select
                        @change="handleChange2" v-model="actForm.upLevel"></el-cascader>
         </el-form-item>
-        <el-form-item label="指导组名" :label-width="formLabelWidth" required>
+        <el-form-item label="班级名" :label-width="formLabelWidth" required>
           <el-input v-model="actForm.show_name"></el-input>
         </el-form-item>
       </el-form>
@@ -116,7 +119,7 @@
     data () {
       return {
         navi_text: {
-          title: '人员管理',
+          title: '级别管理',
           subTitle: '',
           btn: ''
         },
@@ -125,14 +128,14 @@
         custs: [],
         actAddDialog: false,
         actAddForm: {
-          cust_id: '',
-          cust_name: '',
+          student_id: '',
+          student_name: '',
           levels: []
         },
         actEditDialog: false,
         actEditForm: {
-          cust_id: '',
-          cust_name: '',
+          student_id: '',
+          student_name: '',
           levels: []
         },
         actDelDialog: false,
@@ -168,7 +171,7 @@
 
     methods: {
       getLevels() {
-        this.$resource(P_BASE2 + 'level_list').get().then((response) => {
+        this.$resource(P_BASE + 'level_list').get().then((response) => {
           if (response.body.code == 200) {
             this.levels = response.body.data
             this.level1 = []
@@ -374,18 +377,16 @@
   .rowbtn {
     width: 100%;
     overflow: hidden;
-    margin-bottom: 10px;
   }
 
   .rowbtn span {
     float: left;
     width: 100px;
     border: 1px solid #1c8de0;
-    margin-left: 20px;
     height: 30px;
+    margin-right: 15px;
     line-height: 30px;
     text-align: center;
-    border-radius: 6px;
     color: #1d8ce0;
     cursor: pointer;
 

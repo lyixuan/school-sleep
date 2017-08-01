@@ -16,18 +16,18 @@
         <div class="t-bd">
           <el-table :data="alarmArr" style="width: 100%" border
                     :default-sort="{prop: 'alarm_time', order: 'descending'}" max-height="500">
-            <el-table-column fixed prop="cust_id" label="工号" min-width="100" show-overflow-tooltip sortable></el-table-column>
-            <el-table-column fixed prop="cust_name" label="姓名" min-width="100" show-overflow-tooltip
+            <el-table-column fixed prop="student_id" label="学号" min-width="100" show-overflow-tooltip sortable></el-table-column>
+            <el-table-column fixed prop="student_name" label="姓名" min-width="100" show-overflow-tooltip
                              sortable></el-table-column>
             <el-table-column prop="sche_begin_time" label="计划入寓时间" min-width="180" show-overflow-tooltip
                              sortable></el-table-column>
             <el-table-column prop="sche_end_time" label="计划出寓时间" min-width="180" show-overflow-tooltip
                              sortable></el-table-column>
-            <el-table-column prop="workshop_des" label="车间" min-width="100" show-overflow-tooltip
+            <el-table-column prop="section_des" label="阶段" min-width="100" show-overflow-tooltip
                              sortable></el-table-column>
-            <el-table-column prop="fleet_des" label="车队" min-width="100" show-overflow-tooltip
+            <el-table-column prop="grade_des" label="年级" min-width="100" show-overflow-tooltip
                              sortable></el-table-column>
-            <el-table-column prop="group_des" label="指导组" min-width="100" show-overflow-tooltip
+            <el-table-column prop="class_des" label="班级" min-width="100" show-overflow-tooltip
                              sortable></el-table-column>
             <el-table-column prop="apart_des" label="公寓" min-width="100" show-overflow-tooltip
                              sortable></el-table-column>

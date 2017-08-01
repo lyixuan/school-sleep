@@ -1,41 +1,21 @@
 <template>
   <div class="dashboard">
     <s-navi :nData="navi_text" class="dashboard-navi" v-on:custevt="fatherEvt"></s-navi>
-
-    <!--<el-popover-->
-    <!--ref="popover"-->
-    <!--placement="right"-->
-    <!--width="800"-->
-    <!--trigger="click">-->
-    <!--<el-table :data="alarm">-->
-    <!--<el-table-column min-width="100"  property="cust_id" label="工号"></el-table-column>-->
-    <!--<el-table-column min-width="100"  property="cust_name" label="姓名"></el-table-column>-->
-    <!--<el-table-column min-width="180" show-overflow-tooltip property="sche_begin_time" label="计划入寓时间"></el-table-column>-->
-    <!--<el-table-column min-width="180" show-overflow-tooltip property="sche_end_time" label="计划出寓时间"></el-table-column>-->
-    <!--<el-table-column min-width="100" show-overflow-tooltip property="workshop_des" label="车间"></el-table-column>-->
-    <!--<el-table-column min-width="100" show-overflow-tooltip property="fleet_des" label="车队"></el-table-column>-->
-    <!--<el-table-column min-width="100" show-overflow-tooltip property="group_des" label="指导组"></el-table-column>-->
-    <!--<el-table-column min-width="100" show-overflow-tooltip property="apart_des" label="公寓"></el-table-column>-->
-    <!--<el-table-column min-width="100" show-overflow-tooltip property="room_des" label="房间"></el-table-column>-->
-    <!--<el-table-column min-width="100" show-overflow-tooltip property="bed_des" label="床位"></el-table-column>-->
-    <!--<el-table-column min-width="100" show-overflow-tooltip property="depot_des" label="机务段"></el-table-column>-->
-    <!--</el-table>-->
-    <!--</el-popover>-->
     <el-dialog title="入寓信息" v-model="dialogTableVisible" size="large">
       <el-table :data="alarm">
-        <el-table-column min-width="100" property="cust_id" label="工号"></el-table-column>
-        <el-table-column min-width="100" property="cust_name" label="姓名"></el-table-column>
+        <el-table-column min-width="100" property="student_id" label="学号"></el-table-column>
+        <el-table-column min-width="100" property="student_name" label="姓名"></el-table-column>
         <el-table-column min-width="180" show-overflow-tooltip property="sche_begin_time"
                          label="计划入寓时间"></el-table-column>
         <el-table-column min-width="180" show-overflow-tooltip property="sche_end_time"
                          label="计划出寓时间"></el-table-column>
-        <el-table-column min-width="100" show-overflow-tooltip property="workshop_des" label="车间"></el-table-column>
-        <el-table-column min-width="100" show-overflow-tooltip property="fleet_des" label="车队"></el-table-column>
-        <el-table-column min-width="100" show-overflow-tooltip property="group_des" label="指导组"></el-table-column>
+        <el-table-column min-width="100" show-overflow-tooltip property="section_des" label="阶段"></el-table-column>
+        <el-table-column min-width="100" show-overflow-tooltip property="grade_des" label="年级"></el-table-column>
+        <el-table-column min-width="100" show-overflow-tooltip property="class_des" label="班级"></el-table-column>
         <el-table-column min-width="100" show-overflow-tooltip property="apart_des" label="公寓"></el-table-column>
         <el-table-column min-width="100" show-overflow-tooltip property="room_des" label="房间"></el-table-column>
         <el-table-column min-width="100" show-overflow-tooltip property="bed_des" label="床位"></el-table-column>
-        <el-table-column min-width="100" show-overflow-tooltip property="depot_des" label="机务段"></el-table-column>
+        <el-table-column min-width="100" show-overflow-tooltip property="school_des" label="学校"></el-table-column>
       </el-table>
     </el-dialog>
 
@@ -45,7 +25,7 @@
         <div class="row1">
           <div class="l-h h1">楼层信息</div>
           <transition-group>
-            <div class="l-c" :class="{active:floor_active==item.floor_id}" v-for="item in floors" :key="item"
+            <div class="l-c" :class="{active:floor_active==item.floor_id}" v-for="item in floors" :key="item.floor_id"
                  @click="changeFloor(item.floor_id)">
               <img src="../assets/img-dash/floor1.png" v-if="floor_active==item.floor_id"/>
               <img src="../assets/img-dash/floor2.png" v-if="floor_active!=item.floor_id"/>
@@ -88,9 +68,9 @@
             <tr v-if="alarm.length == 0">
               <td colspan="3">暂无数据</td>
             </tr>
-            <tr v-else v-for="item in alarm">
+            <tr v-else v-for="item in alarm" :key="item.bed_id">
               <td :title="item.alarm_time">{{(item.sche_begin_time).substr(11,5)}}</td>
-              <td :title="item.cust_name">{{item.cust_name}}</td>
+              <td :title="item.student_name">{{item.student_name}}</td>
               <td :title="item.bed_id">{{item.bed_id}}</td>
             </tr>
           </table>
@@ -134,8 +114,8 @@
                     <div class="ri-r">
                       <div class="text-tip " v-if="bed.bed_state_id == 4">故障</div>
                       <div class="text-tip text-tip2" v-if="bed.bed_state_id == 5">报警</div>
-                      <div class="ri-r-t">工号：{{bed.cust_id == ''?'--':bed.cust_id }}</div>
-                      <div class="ri-r-s">姓名：{{bed.cust_name==''?'--':bed.cust_name}}</div>
+                      <div class="ri-r-t">学号：{{bed.student_id == ''?'--':bed.student_id }}</div>
+                      <div class="ri-r-s">姓名：{{bed.student_name==''?'--':bed.student_name}}</div>
                     </div>
                   </div>
                 </div>
@@ -154,20 +134,20 @@
           <s-e-b :pData="item" :sId="item.id" v-for="item in echart_bar" :key="item.id"></s-e-b>
         </div>
       </div>
-      <!--出入寓信息-->
+      <!--寓信息-->
       <el-dialog class="bedInputDialog" title="增加入寓信息" :visible.sync="bedInputDialog">
         <div style="text-align: right;color:#35A8FD;margin-bottom: 5px;margin-top: -5px;">{{bedInputForm.room_des}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {{bedInputForm.bed_des}}</div>
         <el-form :model="bedInputForm">
-          <el-form-item label="工号" :label-width="formLabelWidth" required>
-            <el-input v-model="bedInputForm.cust_id" auto-complete="on"></el-input>
+          <el-form-item label="学号" :label-width="formLabelWidth" required>
+            <el-input v-model="bedInputForm.student_id" auto-complete="on"></el-input>
             <el-button style="margin-top:10px;" @click="getDetailByCustId()">获取人员信息</el-button>
           </el-form-item>
           <el-form-item label="姓名" :label-width="formLabelWidth" required>
-            <el-input v-model="bedInputForm.cust_name" auto-complete="on"></el-input>
+            <el-input v-model="bedInputForm.student_name" auto-complete="on"></el-input>
           </el-form-item>
           <el-form-item label="分级" :label-width="formLabelWidth">
             <el-cascader :options="levels" change-on-select
-                         @change="handleChange" v-model="bedInputForm.cust_level"></el-cascader>
+                         @change="handleChange" v-model="bedInputForm.level"></el-cascader>
           </el-form-item>
           <el-form-item label="车次或班次" :label-width="formLabelWidth" required>
             <el-input v-model="bedInputForm.train_des" auto-complete="on"></el-input>
@@ -198,14 +178,14 @@
           <el-form-item label="床位状态" :label-width="formLabelWidth">
             <el-input v-model="bedShowForm.bed_state_des" :disabled="true"></el-input>
           </el-form-item>
-          <el-form-item label="工号" :label-width="formLabelWidth">
-            <el-input v-model="bedShowForm.cust_id" :disabled="true"></el-input>
+          <el-form-item label="学号" :label-width="formLabelWidth">
+            <el-input v-model="bedShowForm.student_id" :disabled="true"></el-input>
           </el-form-item>
           <el-form-item label="姓名" :label-width="formLabelWidth">
-            <el-input v-model="bedShowForm.cust_name" :disabled="true"></el-input>
+            <el-input v-model="bedShowForm.student_name" :disabled="true"></el-input>
           </el-form-item>
           <el-form-item label="分级" :label-width="formLabelWidth">
-            <el-input v-model="bedShowForm.cust_level" :disabled="true"></el-input>
+            <el-input v-model="bedShowForm.level" :disabled="true"></el-input>
           </el-form-item>
           <el-form-item label="车次或班次" :label-width="formLabelWidth" >
             <el-input v-model="bedShowForm.train_des" auto-complete="on" :disabled="true"></el-input>
@@ -223,7 +203,7 @@
             </el-date-picker>
           </el-form-item>
           <el-form-item label="报警记录" :label-width="formLabelWidth">
-            <div class="alarm" v-for="item in bedShowForm.alarm"><span>{{item.alarm_time}}</span><span>{{item.alarm_state_des}}</span></div>
+            <div class="alarm" v-for="item in bedShowForm.alarm" :key="item.alarm_time"><span>{{item.alarm_time}}</span><span>{{item.alarm_state_des}}</span></div>
           </el-form-item>
            </el-form>
         <div slot="footer" class="dialog-footer">
@@ -250,7 +230,7 @@
         return_data: {},
         // 导航信息
         navi_text: {
-          title: '公寓监控概览',
+          title: '监控概览',
           subTitle: '',
           btn: '手动更新'
         },
@@ -288,9 +268,9 @@
         // 分级
         levels: [],
         bedInputForm: {
-          cust_id: '',
-          cust_level: [],
-          cust_name: "",
+          student_id: '',
+          level: [],
+          student_name: "",
           sche_in_time: "",
           sche_out_time: "",
           bed_des: "",
@@ -302,9 +282,9 @@
 
         bedShowDialog: false,
         bedShowForm: {
-          cust_id: '',
-          cust_level: '',
-          cust_name: "",
+          student_id: '',
+          level: '',
+          student_name: "",
           sche_in_time: "",
           sche_out_time: "",
           bed_state_des: "",
@@ -491,59 +471,62 @@
         Velocity(el, {opacity: 1}, {complete: done})
       },
       openDetail(bed,room){
-        let _this = this;
-        if (bed.bed_state_id == 3) {
-          // 空闲,录入
-          this.bedInputForm={
-              cust_id: "",
-              cust_level: [],
-              cust_name: "",
-              sche_in_time: "",
-              sche_out_time: "",
-              train_des: "",
-              room_id : room.room_id,
-              room_des : room.room_des,
-              bed_id : bed.bed_id,
-              bed_des : bed.bed_des
-          };
-          this.bedInputDialog = true;
-        } else {
-          // 非空闲，获取详情
-          this.$resource(P_BASE2 + 'get_in_apart_info_by_custid').get({cust_id:bed.cust_id}).then((response) => {
-            if (response.body.code == 200) {
-              _this.bedShowForm = response.body.data;
-              let cust_level='';
-              for(let i=0;i<response.body.data.cust_level.length;i++){
-                cust_level+=response.body.data.cust_level[i].name;
-                if(i<response.body.data.cust_level.length-1){
-                  cust_level+="->"
-                }
-              }
-              _this.bedShowForm.cust_level=cust_level;
-              _this.bedShowForm.bed_state_des = bed.bed_state_des;
-              _this.bedShowForm.room_des = room.room_des;
-              _this.bedShowForm.bed_des = bed.bed_des;
-              _this.bedShowDialog = true;
-            } else {
-              _this.alertMsg("error", response.body.msg ? response.body.msg : '服务器端错误')
-            }
-          })
-
-
-        }
+        window.open('http://'+window.location.host+'/bed_detail/'+bed.bed_id)
       },
+//      openDetail(bed,room){
+//        let _this = this;
+//        if (bed.bed_state_id == 3) {
+//          // 空闲,录入
+//          this.bedInputForm={
+//              student_id: "",
+//              level: [],
+//              student_name: "",
+//              sche_in_time: "",
+//              sche_out_time: "",
+//              train_des: "",
+//              room_id : room.room_id,
+//              room_des : room.room_des,
+//              bed_id : bed.bed_id,
+//              bed_des : bed.bed_des
+//          };
+//          this.bedInputDialog = true;
+//        } else {
+//          // 非空闲，获取详情
+//          this.$resource(P_BASE + 'get_in_apart').get({student_id:bed.student_id}).then((response) => {
+//            if (response.body.code == 200) {
+//              _this.bedShowForm = response.body.data;
+//              let level='';
+//              for(let i=0;i<response.body.data.level.length;i++){
+//                level+=response.body.data.level[i].name;
+//                if(i<response.body.data.level.length-1){
+//                  level+="->"
+//                }
+//              }
+//              _this.bedShowForm.level=level;
+//              _this.bedShowForm.bed_state_des = bed.bed_state_des;
+//              _this.bedShowForm.room_des = room.room_des;
+//              _this.bedShowForm.bed_des = bed.bed_des;
+//              _this.bedShowDialog = true;
+//            } else {
+//              _this.alertMsg("error", response.body.msg ? response.body.msg : '服务器端错误')
+//            }
+//          })
+//
+//
+//        }
+//      },
       getDetailByCustId(){
         let _this = this;
-        if (this.bedInputForm.cust_id) {
-          this.$resource(P_BASE2 + 'get_in_apart_info_by_custid').get({cust_id:this.bedInputForm.cust_id}).then((response) => {
+        if (this.bedInputForm.student_id) {
+          this.$resource(P_BASE + 'get_in_apart').get({student_id:this.bedInputForm.student_id}).then((response) => {
             if (response.body.code == 200) {
-              let cust_level=[];
-              for(let i=0;i<response.body.data.cust_level.length;i++){
-                cust_level.push(response.body.data.cust_level[i].value)
+              let level=[];
+              for(let i=0;i<response.body.data.level.length;i++){
+                level.push(response.body.data.level[i].value)
               }
-              _this.bedInputForm.cust_level=cust_level
-              _this.bedInputForm.cust_id = response.body.data.cust_id;
-              _this.bedInputForm.cust_name = response.body.data.cust_name;
+              _this.bedInputForm.level=level
+              _this.bedInputForm.student_id = response.body.data.student_id;
+              _this.bedInputForm.student_name = response.body.data.student_name;
               _this.bedInputForm.sche_in_time = response.body.data.sche_in_time;
               _this.bedInputForm.sche_out_time = response.body.data.sche_out_time;
               _this.bedInputForm.train_des = response.body.data.train_des;
@@ -552,13 +535,13 @@
             }
           })
         }else {
-          _this.alertMsg("warning", '请输入工号查询')
+          _this.alertMsg("warning", '请输入学号查询')
         }
 
       },
       saveInApart(){
         let _this = this;
-        if (this.bedInputForm.cust_id && this.bedInputForm.cust_name&& this.bedInputForm.train_des) {
+        if (this.bedInputForm.student_id && this.bedInputForm.student_name&& this.bedInputForm.train_des) {
           this.bedInputForm.sche_in_time =new Date(this.bedInputForm.sche_in_time).Format('yyyy-MM-dd hh:mm:ss')
           this.bedInputForm.sche_out_time =new Date(this.bedInputForm.sche_out_time).Format('yyyy-MM-dd hh:mm:ss')
           if(this.bedInputForm.sche_in_time>=this.bedInputForm.sche_out_time){
@@ -566,7 +549,7 @@
               return
           }
           let param= this.bedInputForm;
-          this.$resource(P_BASE2 + 'add_in_apart').save({}, param).then((response) => {
+          this.$resource(P_BASE + 'add_in_apart').save({}, param).then((response) => {
             if (response.body.code == 200) {
 //              入寓成功
 //              关闭对话框，更新数据
@@ -585,7 +568,7 @@
 
       },
       handleChange(value){
-        this.bedInputForm.cust_level = value
+        this.bedInputForm.level = value
       },
       getLevels(){
         this.$resource(P_BASE + 'level_list').get().then((response) => {

@@ -15,10 +15,10 @@
         <div class="t-h">床位状态监控详情 <span class="export" @click="exportExcel">导出Excel</span></div>
         <div class="t-b" v-loading.body="tb_loading">
           <div class="t-tb">
-            <span @click="changeTab(1)">故障 <i :class="{'active':tabState == 1}"></i></span>
-            <span @click="changeTab(2)">报警 <i :class="{'active':tabState == 2}"></i></span>
-            <span @click="changeTab(3)">正常 <i :class="{'active':tabState == 3}"></i></span>
-            <span @click="changeTab(4)">空闲 <i :class="{'active':tabState == 4}"></i></span>
+            <span @click="changeTab(1)" :class="{'active2':tabState == 1}">故障 <i :class="{'active':tabState == 1}"></i></span>
+            <span @click="changeTab(2)" :class="{'active2':tabState == 2}">报警 <i :class="{'active':tabState == 2}"></i></span>
+            <span @click="changeTab(3)" :class="{'active2':tabState == 3}">正常 <i :class="{'active':tabState == 3}"></i></span>
+            <span @click="changeTab(4)" :class="{'active2':tabState == 4}">空闲 <i :class="{'active':tabState == 4}"></i></span>
           </div>
           <div class="t-bd t-b1" v-show="tabState == 1">
             <el-table :data="breakArr" style="width: 100%" border
@@ -35,13 +35,13 @@
           <div class="t-bd t-b2" v-show="tabState == 2">
             <el-table :data="alarmArr" style="width: 100%" border
                       :default-sort="{prop: 'alarm_time', order: 'descending'}" max-height="500">
-              <el-table-column prop="cust_id" label="工号" min-width="100" show-overflow-tooltip  sortable></el-table-column>
-              <el-table-column prop="cust_name" label="姓名" min-width="100" show-overflow-tooltip sortable></el-table-column>
+              <el-table-column prop="student_id" label="学号" min-width="100" show-overflow-tooltip  sortable></el-table-column>
+              <el-table-column prop="student_name" label="姓名" min-width="100" show-overflow-tooltip sortable></el-table-column>
               <el-table-column prop="sche_begin_time" label="计划入寓时间"  min-width="180" show-overflow-tooltip sortable></el-table-column>
               <el-table-column prop="sche_end_time" label="计划出寓时间"  min-width="180" show-overflow-tooltip sortable></el-table-column>
-              <el-table-column prop="workshop_des" label="车间" min-width="100" show-overflow-tooltip sortable></el-table-column>
-              <el-table-column prop="fleet_des" label="车队" min-width="100" show-overflow-tooltip sortable></el-table-column>
-              <el-table-column prop="group_des" label="指导组" min-width="100" show-overflow-tooltip sortable></el-table-column>
+              <el-table-column prop="section_des" label="阶段" min-width="100" show-overflow-tooltip sortable></el-table-column>
+              <el-table-column prop="grade_des" label="年级" min-width="100" show-overflow-tooltip sortable></el-table-column>
+              <el-table-column prop="class_des" label="班级" min-width="100" show-overflow-tooltip sortable></el-table-column>
               <el-table-column prop="apart_des" label="公寓" min-width="100" show-overflow-tooltip sortable></el-table-column>
               <el-table-column prop="room_des" label="房间" min-width="100" show-overflow-tooltip sortable></el-table-column>
               <el-table-column prop="bed_des" label="床位" min-width="100" show-overflow-tooltip sortable></el-table-column>
@@ -53,13 +53,13 @@
           <div class="t-bd t-b3" v-show="tabState == 3">
             <el-table :data="normalArr" style="width: 100%" border
                       :default-sort="{prop: 'create_time', order: 'descending'}" max-height="500">
-              <el-table-column min-width="100" prop="cust_id" label="工号" show-overflow-tooltip sortable></el-table-column>
-              <el-table-column min-width="100" prop="cust_name" label="姓名" show-overflow-tooltip sortable></el-table-column>
+              <el-table-column min-width="100" prop="student_id" label="学号" show-overflow-tooltip sortable></el-table-column>
+              <el-table-column min-width="100" prop="student_name" label="姓名" show-overflow-tooltip sortable></el-table-column>
               <el-table-column min-width="180" prop="sche_begin_time" label="计划入寓时间" show-overflow-tooltip sortable></el-table-column>
               <el-table-column min-width="180" prop="sche_end_time" label="计划出寓时间"  show-overflow-tooltip sortable></el-table-column>
-              <el-table-column min-width="100" prop="workshop_des" label="车间" show-overflow-tooltip sortable></el-table-column>
-              <el-table-column min-width="100" prop="fleet_des" label="车队" show-overflow-tooltip sortable></el-table-column>
-              <el-table-column min-width="100" prop="group_des" label="指导组" show-overflow-tooltip sortable></el-table-column>
+              <el-table-column min-width="100" prop="section_des" label="阶段" show-overflow-tooltip sortable></el-table-column>
+              <el-table-column min-width="100" prop="grade_des" label="年级" show-overflow-tooltip sortable></el-table-column>
+              <el-table-column min-width="100" prop="class_des" label="班级" show-overflow-tooltip sortable></el-table-column>
               <el-table-column min-width="100" prop="apart_des" label="公寓" show-overflow-tooltip sortable></el-table-column>
               <el-table-column min-width="100" prop="room_des" label="房间" show-overflow-tooltip sortable></el-table-column>
               <el-table-column min-width="100" prop="bed_des" label="床位" show-overflow-tooltip sortable></el-table-column>
@@ -329,6 +329,12 @@
     text-align: center;
     position: relative;
     cursor: pointer;
+    font-size: 14px;
+    color: #aaa;
+  }
+  .t-tb > span:hover{
+    color:#2986CC;
+    font-size: 15px;
   }
 
   .t-tb i {
@@ -350,6 +356,10 @@
 
   .t-tb i.active {
     display: block;
+  }
+  .t-tb .active2 {
+   color:#2986CC;
+    font-size: 15px;
   }
 
   .t-bd {

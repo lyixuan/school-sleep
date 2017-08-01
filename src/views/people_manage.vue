@@ -1,47 +1,52 @@
 <template>
   <div class="report-search">
-    <!--<s-navi :nData="navi_text"></s-navi>-->
+    <s-navi :nData="navi_text"></s-navi>
     <div style="width: 100%;height: 100%;">
       <div class="condition">
-        <div class="bg-blue">司乘人员管理</div>
+        <div class="bg-blue">检索条件</div>
         <div class="condition0">
           <div class="people_search">
             搜索：
             <el-cascader :options="levels" change-on-select class="m-cas" size="small"
                          @change="peopleHandleChange" v-model="searchForm.level" placeholder="请依次选择级别"></el-cascader>
-            <el-input class="m-input" size="small" placeholder="请输入工号或姓名" v-model="searchForm.cust_info"></el-input>
+            <el-input class="m-input" size="small" placeholder="请输入学号或姓名" v-model="searchForm.student_info"></el-input>
             <el-button type="primary" class="m-btn" @click="getPeople" size="small">搜索</el-button>
             <el-button class="m-btn" @click="clear" size="small">清除</el-button>
           </div>
-
+        </div>
+        <div class="bg-blue">检索结果</div>
+        <div class="condition0">
+          <div class="addnew" @click="openAdd">
+            + 新增人员
+          </div>
           <el-table
-            :data="custs" border
+            :data="students" border
             style="width: 100%"
-            :default-sort="{prop: 'cust_id', order: 'descending'}">
+            :default-sort="{prop: 'student_id', order: 'descending'}">
             <el-table-column
-              prop="cust_id"
-              label="工号"
+              prop="student_id"
+              label="学号"
               sortable
               width="180">
             </el-table-column>
             <el-table-column
-              prop="cust_name"
+              prop="student_name"
               label="姓名"
               sortable
               width="180">
             </el-table-column>
             <el-table-column
-              prop="workshop_des"
-              label="车间" sortable>
+              prop="section_des"
+              label="阶段" sortable>
             </el-table-column>
             <el-table-column
-              prop="fleet_des"
-              label="车队"
+              prop="grade_des"
+              label="年级"
               sortable>
             </el-table-column>
             <el-table-column
-              prop="group_des"
-              label="指导组"
+              prop="grade_des"
+              label="班级"
               sortable>
             </el-table-column>
             <el-table-column
@@ -61,9 +66,6 @@
               </template>
             </el-table-column>
           </el-table>
-          <div class="addnew" @click="openAdd">
-            + 新增人员
-          </div>
           <el-pagination class="m-paging"
                          @size-change="handleSizeChange"
                          @current-change="handleCurrentChange"
@@ -74,18 +76,17 @@
                          :total="totalNum">
           </el-pagination>
         </div>
-
       </div>
 
     </div>
     <!--新增dialog-->
     <el-dialog class="actEdit people_m" title="新增人员" :visible.sync="actAddDialog">
       <el-form :model="actAddForm">
-        <el-form-item label="工号" :label-width="formLabelWidth" required>
-          <el-input v-model="actAddForm.cust_id"></el-input>
+        <el-form-item label="学号" :label-width="formLabelWidth" required>
+          <el-input v-model="actAddForm.student_id"></el-input>
         </el-form-item>
         <el-form-item label="姓名" :label-width="formLabelWidth" required>
-          <el-input v-model="actAddForm.cust_name"></el-input>
+          <el-input v-model="actAddForm.student_name"></el-input>
         </el-form-item>
         <el-form-item label="分级" :label-width="formLabelWidth" required>
           <el-cascader :options="levels" change-on-select  v-model="actAddForm.levels"
@@ -101,11 +102,11 @@
     <!--编辑dialog-->
     <el-dialog class="actEdit people_m" title="编辑" :visible.sync="actEditDialog">
       <el-form :model="actEditForm">
-        <el-form-item label="工号" :label-width="formLabelWidth">
-          <el-input v-model="actEditForm.cust_id" :disabled="true"></el-input>
+        <el-form-item label="学号" :label-width="formLabelWidth">
+          <el-input v-model="actEditForm.student_id" :disabled="true"></el-input>
         </el-form-item>
         <el-form-item label="姓名" :label-width="formLabelWidth" required>
-          <el-input v-model="actEditForm.cust_name"></el-input>
+          <el-input v-model="actEditForm.student_name"></el-input>
         </el-form-item>
         <el-form-item label="分级" :label-width="formLabelWidth" required>
           <el-cascader :options="levels" change-on-select v-model="actEditForm.levels"
@@ -139,23 +140,23 @@
     data () {
       return {
         navi_text: {
-          title: '人员管理',
+          title: '司乘人员管理',
           subTitle: '',
           btn: ''
         },
         formLabelWidth: '120px',
 
-        custs: [],
+        students: [],
         actAddDialog: false,
         actAddForm: {
-          cust_id: '',
-          cust_name: '',
+          student_id: '',
+          student_name: '',
           levels: []
         },
         actEditDialog: false,
         actEditForm: {
-          cust_id: '',
-          cust_name: '',
+          student_id: '',
+          student_name: '',
           levels: []
         },
         actDelDialog: false,
@@ -174,7 +175,7 @@
         totalNum: 0,
         searchForm: {
           level: [],
-          cust_info: ''
+          student_info: ''
         }
       }
     },
@@ -198,10 +199,10 @@
           params.current_page = this.currentPage
         }
         params.level = this.searchForm.level
-        params.cust_info = this.searchForm.cust_info
-        this.$resource(P_OPTIONS + 'all_cust').save({}, params).then((response) => {
+        params.student_info = this.searchForm.student_info
+        this.$resource(P_OPTIONS + 'get_all_people').save({}, params).then((response) => {
           if (response.body.code == 200) {
-            this.custs = response.body.data.result
+            this.students = response.body.data.result
             this.paging(response.body.data.paging)
           } else {
             this.alertMsg("warning", '获取人员列表失败')
@@ -221,19 +222,19 @@
       },
       openAdd(){
         this.actAddForm = {
-          cust_id: '',
-          cust_name: '',
+          student_id: '',
+          student_name: '',
           levels: []
         };
         this.actAddDialog = true
       },
       saveAdd(){
-        if (!this.actAddForm.cust_id || !this.actAddForm.cust_name || !this.actAddForm.levels) {
+        if (!this.actAddForm.student_id || !this.actAddForm.student_name || !this.actAddForm.levels) {
           this.alertMsg("warning", '请填写必填项');
           return
         }
         let _this = this;
-        this.$resource(P_OPTIONS + 'add_cust').save({}, this.actAddForm).then((response) => {
+        this.$resource(P_OPTIONS + 'add_student').save({}, this.actAddForm).then((response) => {
           if (response.body.code == 200) {
             _this.alertMsg("success", '添加成功');
             _this.actAddDialog = false;
@@ -249,18 +250,18 @@
       openEdit(index, row){
         this.actEditDialog = true;
         this.actEditForm = {
-          cust_id: row.cust_id,
-          cust_name: row.cust_name,
+          student_id: row.student_id,
+          student_name: row.student_name,
           levels: [row.depot_id, row.workshop_id, row.group_id, row.fleet_id]
         }
       },
       saveEdit(){
-        if (!this.actEditForm.cust_id || !this.actEditForm.cust_name || !this.actEditForm.levels) {
+        if (!this.actEditForm.student_id || !this.actEditForm.student_name || !this.actEditForm.levels) {
           this.alertMsg("warning", '请填写必填项');
           return
         }
         let _this = this;
-        this.$resource(P_OPTIONS + 'edit_cust').save({}, this.actAddForm).then((response) => {
+        this.$resource(P_OPTIONS + 'edit_student').save({}, this.actAddForm).then((response) => {
           if (response.body.code == 200) {
             _this.alertMsg("success", '保存成功');
             _this.actEditDialog = false;
@@ -274,13 +275,13 @@
         })
       },
       openDel(index, row){
-        this.delName = row.cust_name;
-        this.delId = row.cust_id;
+        this.delName = row.student_name;
+        this.delId = row.student_id;
         this.actDelDialog = true
       },
       saveDel(){
         let _this = this;
-        this.$resource(P_OPTIONS + 'del_cust').get({cust_id: this.delId}).then((response) => {
+        this.$resource(P_OPTIONS + 'del_student').get({student_id: this.delId}).then((response) => {
           if (response.body.code == 200) {
             _this.alertMsg("success", '删除成功');
             _this.getPeople()
@@ -301,7 +302,7 @@
       clear(){
         this.searchForm = {
           level: [],
-          cust_info: ''
+          student_info: ''
         }
       },
       handleSizeChange(val) {
@@ -353,9 +354,11 @@
   }
 
   .addnew {
-    margin-top: 10px;
     box-sizing: border-box;
     text-align: center;
+    width: 100px;
+    float: right;
+    margin-bottom: 10px;
     border: 1px solid #1c8de0;
     color: #1c8de0;
     cursor: pointer;
@@ -398,7 +401,6 @@
   }
 
   .people_search {
-    margin-bottom: 10px;
   }
 
   .m-cas {

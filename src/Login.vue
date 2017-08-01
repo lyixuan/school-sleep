@@ -1,7 +1,7 @@
 <template>
   <div id="login">
     <div class="head">
-      <!--<img src="./assets/img-com/logo.png" height="65" style="vertical-align: middle;margin-top: -10px;margin-right: 10px;"/>-->
+      <img src="./assets/img-com/logo.png" height="65" style="vertical-align: middle;margin-top: -10px;margin-right: 10px;"/>
       {{app_name}}
     </div>
     <div class="content">
@@ -11,7 +11,7 @@
         <div class="ying"></div>
         <div class="ying g2"></div>
         <div class="input-wrapper">
-          <input type="text" v-focus v-model="user_id" placeholder="账号">
+          <input type="text" v-focus v-model="user_code" placeholder="账号">
         </div>
         <div class="input-wrapper">
           <input type="password" v-model="password"  @keyup.enter="submit" placeholder="密码">
@@ -31,7 +31,7 @@
     name: 'login',
     data(){
       return {
-        user_id: '',
+        user_code: '',
         password: '',
         app_name: '智能睡眠检测系统',
         isShow: false
@@ -50,7 +50,7 @@
       submit(){
 
         let param = {
-          user_id: this.user_id,
+          user_code: this.user_code,
           password: this.password
         };
         this.isShow = false;

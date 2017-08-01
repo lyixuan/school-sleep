@@ -3,29 +3,29 @@
     <div class="wrap">
       <div class="wrap-in">
         <h1><img :src="report.info.logo_path" width="50"
-                 style="vertical-align: text-bottom;margin-right: 10px;"/>{{report.info.depot_des}}</h1>
-        <div class="subTitle">{{report.info.sub_depot_des}}</div>
+                 style="vertical-align: text-bottom;margin-right: 10px;"/>{{report.info.school_des}}</h1>
+        <div class="subTitle">{{report.info.sub_school_des}}</div>
         <div class="dep">个人信息:</div>
         <table>
           <tr>
             <td class="label">司机工号:</td>
-            <td class="cont">{{report.people_info.cust_id}}</td>
+            <td class="cont">{{report.people_info.student_id}}</td>
             <td class="label">司机姓名:</td>
-            <td class="cont">{{report.people_info.cust_name}}</td>
+            <td class="cont">{{report.people_info.student_name}}</td>
             <td class="label">计划路线:</td>
             <td class="cont">{{report.people_info.train_des}}</td>
           </tr>
           <tr>
             <td class="label">段别:</td>
-            <td class="cont">{{report.people_info.depot_des}}</td>
-            <td class="label">车间:</td>
-            <td class="cont">{{report.people_info.workshop_des}}</td>
-            <td class="label">车队:</td>
-            <td class="cont">{{report.people_info.fleet_des}}</td>
+            <td class="cont">{{report.people_info.school_des}}</td>
+            <td class="label">阶段:</td>
+            <td class="cont">{{report.people_info.section_des}}</td>
+            <td class="label">年级:</td>
+            <td class="cont">{{report.people_info.grade_des}}</td>
           </tr>
           <tr>
-            <td class="label">指导组:</td>
-            <td class="cont">{{report.people_info.group_des}}</td>
+            <td class="label">班级:</td>
+            <td class="cont">{{report.people_info.class_des}}</td>
             <td class="label">职位:</td>
             <td class="cont">{{report.people_info.job}}</td>
             <td class="label">联系方式:</td>
@@ -140,7 +140,7 @@
           info: {
             logo: "",
             locomotive_depot: "",
-            sub_depot_des:""
+            sub_school_des:""
           },
           people_info: {},
           relax_info: {},
