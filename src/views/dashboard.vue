@@ -471,27 +471,24 @@
         Velocity(el, {opacity: 1}, {complete: done})
       },
       openDetail(bed,room){
-        window.open('http://'+window.location.host+'/bed_detail/'+bed.bed_id)
-      },
-//      openDetail(bed,room){
-//        let _this = this;
-//        if (bed.bed_state_id == 3) {
-//          // 空闲,录入
-//          this.bedInputForm={
-//              student_id: "",
-//              level: [],
-//              student_name: "",
-//              sche_in_time: "",
-//              sche_out_time: "",
-//              train_des: "",
-//              room_id : room.room_id,
-//              room_des : room.room_des,
-//              bed_id : bed.bed_id,
-//              bed_des : bed.bed_des
-//          };
-//          this.bedInputDialog = true;
-//        } else {
-//          // 非空闲，获取详情
+        let _this = this;
+        if (bed.bed_state_id == 3) {
+          // 空闲,录入
+          this.bedInputForm={
+              student_id: "",
+              level: [],
+              student_name: "",
+              sche_in_time: "",
+              sche_out_time: "",
+              train_des: "",
+              room_id : room.room_id,
+              room_des : room.room_des,
+              bed_id : bed.bed_id,
+              bed_des : bed.bed_des
+          };
+          this.bedInputDialog = true;
+        } else {
+          // 非空闲，获取详情
 //          this.$resource(P_BASE + 'get_in_apart').get({student_id:bed.student_id}).then((response) => {
 //            if (response.body.code == 200) {
 //              _this.bedShowForm = response.body.data;
@@ -511,10 +508,10 @@
 //              _this.alertMsg("error", response.body.msg ? response.body.msg : '服务器端错误')
 //            }
 //          })
-//
-//
-//        }
-//      },
+          window.open('http://'+window.location.host+'/bed_detail/'+bed.bed_id)
+
+        }
+      },
       getDetailByCustId(){
         let _this = this;
         if (this.bedInputForm.student_id) {

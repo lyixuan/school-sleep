@@ -71,7 +71,15 @@
   width: 100%;
   margin-bottom: 15px;
 }
+.right_card1 .el-checkbox {
+  width: 100%;
+  margin-bottom: 15px;
+}
 
 .right_card .el-checkbox:first-child {
   margin-left: 15px;
 }
+.right_card1 .el-checkbox:first-child {
+  margin-left: 15px;
+}
+

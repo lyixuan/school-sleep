@@ -43,7 +43,7 @@
     <router-link to="/people_manage" v-for="item in checkMenuList" v-if="item == 7" :key="item">
       <div class="menu">
         <img class="icon" src="../assets/img-com/icon-people.png"/>
-        <span>司乘人员管理</span>
+        <span>学生管理</span>
       </div>
     </router-link>
     <router-link to="/level_manage" v-for="item in checkMenuList" v-if="item == 8" :key="item">
@@ -68,22 +68,38 @@
       return {
         rIsShow: 1,
         isClose: false,
-        checkMenuList:[]
+        checkMenuList: []
       }
     },
     mounted(){
-        this.getMenuRights()
+      this.getMenuRights()
     },
     methods: {
       getMenuRights(){
+        let _this = this;
         let u_session = JSON.parse(window.sessionStorage.getItem('u_session'))
         let user_code = u_session.user_code
-        this.$resource(P_PRIVILEGE + 'account_menus').get({user_code: user_code}).then((response) => {
+        this.$resource(P_PRIVILEGE + 'user_roles').get({user_code: user_code}).then((response) => {
           if (response.body.code == 200) {
-            for (let i = 0; i < response.body.data.length; i++) {
-              response.body.data[i] = response.body.data[i].toString()
+            let r = response.body.data;
+            let tmp = []
+            for (var i = 0; i < r.length; i++) {
+              (function (arg) {
+                _this.$resource(P_PRIVILEGE + 'role_rights').get({role_id: r[arg]}).then((response) => {
+                  if (response.body.code == 200) {
+                    tmp = tmp.concat(response.body.data)
+                  } else {
+                    _this.alertMsg("warning", '获取角色权限信息有误')
+                  }
+                  _this.checkMenuList = []
+                  for (var f = 0; f < tmp.length; f++) {
+                    if ( _this.checkMenuList.indexOf(tmp[f]) == -1) {
+                      _this.checkMenuList.push(tmp[f])
+                    }
+                  }
+                })
+              })(i);//调用时参数
             }
-            this.checkMenuList = response.body.data
           } else {
             this.alertMsg("warning", '获取菜单权限有误')
           }

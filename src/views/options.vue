@@ -24,26 +24,60 @@
           </div>
         </div>
 
+        <div class="bg-blue" style="margin-top: 20px;">角色管理</div>
+        <div class="condition0">
+          <div class="left_card1" style="position: relative">
+            <div class="r_tt">角 色 列 表</div>
+            <el-button size="mini" type="primary" style="position:absolute;right: 20px; top:14px;z-index: 100"
+                       @click="openAddRole()"><i class="el-icon-plus
+"></i> 新 增
+            </el-button>
+            <div class="itable">
+              <span>角色ID</span><span>角色名称</span><span>操作</span>
+            </div>
+            <div class="itable" v-for="item in roles" :keys="item.role_id"
+                 :class="{ itableactive: item.role_id==checkedRoleId?true:false }">
+              <span>{{item.role_id}}</span><span @click="getRights(item)">{{item.role_name}}</span>
+              <span><i class="el-icon-delete" @click="openDelRole(item)"></i><i class="el-icon-edit"
+                                                                                @click="openRoleEdit(item)"></i></span>
+            </div>
+          </div>
+          <div class="right_card right_card1" style="position: relative">
+            <div class="r_tt"> 菜 单 列 表</div>
+            <el-button size="mini" type="primary" style="position:absolute;right: 20px; top:14px;z-index: 100"
+                       @click="saveRights()"><i class="el-icon-check
+"></i> 保 存
+            </el-button>
+            <el-checkbox-group v-model="role_rights" v-loading="loading1">
+              <el-checkbox :label=item.value v-for="item in menus" :key="item.value" >{{item.name}}</el-checkbox>
+            </el-checkbox-group>
+            </p>
+          </div>
+        </div>
+
+        <div style="clear:both"></div>
+
         <div class="bg-blue" style="margin-top: 20px;">权限分配</div>
         <div class="condition0">
           <div class="left_card">
-            <div class="r_tt">账号列表</div>
-            <p v-for="item in accounts" :keys="item.user_code" @click="checkUser(item)"
+            <div class="r_tt">账 号 列 表</div>
+            <p v-for="item in accounts" :keys="item.user_code" @click="getUserRoles(item)"
                :class="{ active: item.user_code==checkedBtnId?true:false }">
               <span class="r_name">{{item.user_des}}</span>
             </p>
           </div>
-          <div class="right_card">
-            <div class="r_tt">菜单权限 &nbsp; [{{checkedBtnName}}]</div>
-            <el-checkbox-group v-model="checkMenuList" v-loading="loading">
-              <el-checkbox :label=item.value v-for="item in menus" :key="item.value">{{item.name}}</el-checkbox>
+          <div class="right_card"  style="position: relative">
+            <div class="r_tt">角 色 列 表 &nbsp; [{{checkedBtnName}}]</div>
+            <el-button size="mini" type="primary" style="position:absolute;right: 20px; top:14px;z-index: 100"
+                       @click="saveUserRole()"><i class="el-icon-check
+"></i> 保 存
+            </el-button>
+            <el-checkbox-group v-model="user_roles" v-loading="loading">
+              <el-checkbox :label=item.role_id v-for="item in roles" :key="item.role_id">{{item.role_name}}</el-checkbox>
             </el-checkbox-group>
             </p>
-            <el-button type="primary" class="m-btn" @click="saveRights()">保存权限</el-button>
           </div>
         </div>
-
-
       </div>
     </div>
     <!--编辑dialog-->
@@ -93,10 +127,48 @@
 
     <!--重置密码dialog-->
     <el-dialog class="actEdit" title="重置密码" :visible.sync="actResetDialog">
-      密码重置后将设置为初始密码123456。确定要为 {{resetName}} 重置密码吗？
+      <div style="text-align: left;margin-left: 40px;">密码重置后将设置为初始密码123456。确定要为 {{resetName}} 重置密码吗？</div>
       <div slot="footer" class="dialog-footer">
         <el-button @click="actResetDialog = false">取 消</el-button>
         <el-button type="primary" @click="saveReset()">确 定</el-button>
+      </div>
+    </el-dialog>
+
+    <!--编辑角色-->
+    <el-dialog class="actEdit" title="新增角色" :visible.sync="addRoleDialog">
+      <el-form :model="roleAddForm">
+        <el-form-item label="角色名称" :label-width="formLabelWidth">
+          <el-input v-model="roleAddForm.role_name"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="addRoleDialog = false">取 消</el-button>
+        <el-button type="primary" @click="saveRoleAdd()">确 定</el-button>
+      </div>
+    </el-dialog>
+
+    <!--编辑角色-->
+    <el-dialog class="actEdit" title="编辑角色" :visible.sync="editRoleDialog">
+      <el-form :model="roleEditForm">
+        <el-form-item label="角色ID" :label-width="formLabelWidth">
+          <el-input v-model="roleEditForm.role_id" :disabled="true"></el-input>
+        </el-form-item>
+        <el-form-item label="角色名称" :label-width="formLabelWidth">
+          <el-input v-model="roleEditForm.role_name"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="editRoleDialog = false">取 消</el-button>
+        <el-button type="primary" @click="saveRoleEdit()">确 定</el-button>
+      </div>
+    </el-dialog>
+
+    <!--s删除角色dialog-->
+    <el-dialog class="actEdit" title="删除角色" :visible.sync="delRole">
+      <div style="text-align: left;margin-left: 40px;">你确定要删除角色 【{{roleName}}】 吗？</div>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="delRole = false">取 消</el-button>
+        <el-button type="primary" @click="saveDelRole()">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -136,12 +208,30 @@
         actResetDialog: false,
         resetId: '',
         resetName: '',
-        checkMenuList: [],
-        loading: false
+        user_roles: [],
+        loading: false,
+        loading1: false,
+
+        roles: [],
+        checkedRoleId: '',
+        role_rights: [],
+        editRoleDialog: false,
+        roleEditForm: {
+          role_id: '',
+          role_name: ''
+        },
+        delRole: false,
+        roleName: '',
+        roleID: '',
+        addRoleDialog: false,
+        roleAddForm: {
+          role_name: ''
+        }
       }
     },
     mounted () {
       this.getAccounts();
+      this.getRoles();
       this.getMenus();
     },
 
@@ -151,11 +241,11 @@
           if (response.body.code == 200) {
             this.accounts = response.body.data
             for (var i = 0; i < this.accounts.length; i++) {
-              if(this.accounts[i].user_code=='admin'){
-                this.accounts.splice(i,1)
+              if (this.accounts[i].user_code == 'admin') {
+                this.accounts.splice(i, 1)
               }
             }
-            this.checkUser(this.accounts[0])
+            this.getUserRoles(this.accounts[0])
           } else {
             this.alertMsg("warning", '获取账号信息有误')
           }
@@ -168,6 +258,101 @@
           } else {
             this.alertMsg("warning", '获取菜单信息有误')
           }
+        })
+      },
+      getRoles(){
+        this.$resource(P_PRIVILEGE + 'roles').get().then((response) => {
+          if (response.body.code == 200) {
+            this.roles = response.body.data
+            this.getRights(this.roles[0])
+          } else {
+            this.alertMsg("warning", '获取角色信息有误')
+          }
+        })
+      },
+      openRoleEdit(item){
+        this.editRoleDialog = true;
+        this.roleEditForm = {
+          role_id: item.role_id,
+          role_name: item.role_name
+        }
+      },
+      saveRoleEdit(){
+        this.$resource(P_PRIVILEGE + 'edit_role').save({}, this.roleEditForm).then((response) => {
+          if (response.body.code == 200) {
+            this.getRoles()
+            this.alertMsg("success", '保存成功')
+            this.editRoleDialog = false;
+          } else {
+            this.alertMsg("warning", '服务器错误')
+          }
+        })
+      },
+      openDelRole(item){
+        this.delRole = true;
+        this.roleID = item.role_id
+        this.roleName = item.role_name
+      },
+      saveDelRole(){
+        this.$resource(P_PRIVILEGE + 'del_role').get({role_id: this.roleID}).then((response) => {
+          if (response.body.code == 200) {
+            this.getRoles()
+            this.alertMsg("success", '删除成功')
+            this.delRole = false;
+          } else {
+            this.alertMsg("warning", '服务器错误')
+          }
+        })
+      },
+      openAddRole(){
+        this.addRoleDialog = true;
+        this.roleAddForm = {
+          role_name: ''
+        }
+      },
+      saveRoleAdd(){
+        if (!this.roleAddForm.role_name) {
+          this.alertMsg("warning", '请填写角色名')
+          return
+        }
+        this.$resource(P_PRIVILEGE + 'add_role').save({}, this.roleAddForm).then((response) => {
+          if (response.body.code == 200) {
+            this.getRoles()
+            this.alertMsg("success", '新增成功')
+            this.addRoleDialog = false;
+          } else {
+            this.alertMsg("warning", '服务器错误')
+          }
+        })
+      },
+      getRights(item){
+        this.loading1 = true;
+        this.checkedRoleId = item.role_id;
+        this.$resource(P_PRIVILEGE + 'role_rights').get({role_id: item.role_id}).then((response) => {
+          if (response.body.code == 200) {
+            this.role_rights = response.body.data
+          } else {
+            this.alertMsg("warning", '获取角色权限信息有误')
+          }
+          this.loading1 = false
+        })
+      },
+      saveRights(){
+        let param = {
+          role_id: this.checkedRoleId,
+          rights: this.role_rights
+        };
+        let _this = this;
+        this.$resource(P_PRIVILEGE + 'update_role_rights').save({}, param).then((response) => {
+          if (response.body.code == 200) {
+            _this.alertMsg("success", '角色权限保存成功');
+          } else {
+            _this.alertMsg("error", response.body.msg ? response.body.msg : '服务器端错误')
+          }
+          this.getRights({role_id: this.checkedRoleId})
+        }, (response) => {
+          this.getRights({role_id: this.checkedRoleId})
+          console.log(response.body)
         })
       },
       openAccountEdit(item){
@@ -236,37 +421,35 @@
           }
         })
       },
-      checkUser(item){
-//          获取用户菜单权限
+      getUserRoles(item){
+//          获取用户角色
         this.loading = true
         this.checkedBtnId = item.user_code;
         this.checkedBtnName = item.user_des;
-        this.$resource(P_PRIVILEGE + 'account_menus').get({user_code: item.user_code}).then((response) => {
+        this.$resource(P_PRIVILEGE + 'user_roles').get({user_code: item.user_code}).then((response) => {
           if (response.body.code == 200) {
-            for (let i = 0; i < response.body.data.length; i++) {
-              response.body.data[i] = response.body.data[i].toString()
-            }
-            this.checkMenuList = response.body.data
+            this.user_roles = response.body.data
           } else {
             this.alertMsg("warning", '获取菜单权限有误')
           }
           this.loading = false
         })
-
       },
-      saveRights(){
+      saveUserRole(){
         let param = {
           user_code: this.checkedBtnId,
-          rights: this.checkMenuList
-        }
+          roles: this.user_roles
+        };
         let _this = this;
-        this.$resource(P_PRIVILEGE + 'update_account_menus').save({}, param).then((response) => {
+        this.$resource(P_PRIVILEGE + 'update_user_roles').save({}, param).then((response) => {
           if (response.body.code == 200) {
-            _this.alertMsg("success", '权限保存成功');
+            _this.alertMsg("success", '用户角色保存成功');
           } else {
             _this.alertMsg("error", response.body.msg ? response.body.msg : '服务器端错误')
           }
+          this.getUserRoles({user_code: this.checkedBtnId})
         }, (response) => {
+          this.getUserRoles({user_code: this.checkedBtnId})
           console.log(response.body)
         })
       }
@@ -342,12 +525,11 @@
   }
 
   .left_card {
-    width: 20%;
-    margin-right: 8%;
-    min-height: 300px;
+    width: 36%;
+    margin-right: 3%;
+    min-height: 350px;
     overflow: hidden;
     float: left;
-    border-radius: 10px;
     padding: 20px;
     color: #333;
     font-size: 16px;
@@ -355,13 +537,74 @@
     border: 2px solid #E7F4FA;
   }
 
+  .left_card1 {
+    width: 36%;
+    margin-right: 3%;
+    text-align: left;
+    min-height: 420px;
+    overflow: hidden;
+    float: left;
+    padding: 20px;
+    color: #333;
+    font-size: 14px;
+    border: 2px solid #E7F4FA;
+  }
+
+  .itable {
+    line-height: 30px;
+  }
+  .itable span:nth-child(2){
+    padding: 0 5px;
+  }
+
+  .itable:nth-child(n+4):hover span:nth-child(2){
+    background: #efefef;
+  }
+
+  .itableactive  span:nth-child(2){
+    background: #E7F4FA !important;
+  }
+
+  .itable > span {
+    display: inline-block;
+    width: 25%;
+    margin-left: 1%;
+    cursor: pointer;
+  }
+
+  .itable > span:first-child {
+    width: 20%;
+  }
+
+  .itable > span:nth-child(2) {
+    width: 45%;
+  }
+
+  .itable > span > i {
+    margin-right: 15px;
+    color: #1c8de0;
+    cursor: pointer;
+  }
+
+  .itable > span > i:hover {
+    color: #0000ff;
+  }
+
   .right_card {
-    width: 70%;
-    min-height: 300px;
+    width: 60%;
+    min-height: 350px;
     overflow: hidden;
     float: left;
     border: 2px solid #E7F4FA;
-    border-radius: 10px;
+    padding: 20px;
+  }
+
+  .right_card1 {
+    width: 60%;
+    min-height: 420px;
+    overflow: hidden;
+    float: left;
+    border: 2px solid #E7F4FA;
     padding: 20px;
   }
 
@@ -391,20 +634,16 @@
     border-bottom: 1px solid #eee;
   }
 
-  .m-btn {
-    width: 120px;
-    border-radius: 0;
-    text-align: center;
-    height: 30px;
-    line-height: 5px;
-    float: right;
-    margin-right: 40%;
-  }
 
   p.active {
     background: #42A4D3;
     color: #fff;
   }
-
+  .right_card .el-checkbox:first-child {
+    margin-left: 15px!important;
+  }
+  .right_card1 .el-checkbox:first-child {
+    margin-left: 15px!important;
+  }
 
 </style>

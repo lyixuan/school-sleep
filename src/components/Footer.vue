@@ -1,6 +1,6 @@
 <template>
   <div class="footer">
-    版权信息
+    Copyright © 2016-2020
   </div>
 </template>
 
