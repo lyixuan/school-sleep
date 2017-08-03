@@ -5,7 +5,11 @@
       {{app_name}}
     </div>
     <div class="content">
-      <div class="pic"><img src="./assets/img-com/train.png"/></div>
+      <div class="pic" style="position: relative">
+        <span style="position: absolute;top: 10%;left: 100px;"><img height="218" src="./assets/img-com/g2.png"/></span>
+        <span style="position: absolute;top: 42%;left: 350px;"><img height="233" src="./assets/img-com/g1.png"/></span>
+        <span style="position: absolute;top: 10%;left: 650px;"><img height="209" src="./assets/img-com/g3.png"/></span>
+      </div>
       <div class="wrap">
         <div class="icon"><img src="./assets/img-com/login_icon.png"/></div>
         <div class="ying"></div>
@@ -20,6 +24,7 @@
         <div class="button-wrapper">
           <button class="sign-button" @click="submit">登录</button>
         </div>
+
       </div>
     </div>
     <div class="foot">Copyrignt © 2016-2017 All Rights Reserved</div>
@@ -64,7 +69,7 @@
         }, (response) => {
           console.log(response.body)
         })
-      }
+      },
     }
   }
 </script>
@@ -99,9 +104,11 @@
     margin-top: 30px;
     width: 100%;
     height: 520px;
-    background-image: url(./assets/img-com/bg.png);
-    background-repeat: repeat;
-    background-position: center 0;
+    /*opacity: 0.8;*/
+    background: rgba(25, 138, 194, 1);
+    /*background-image: url(./assets/img-com/bgii.jpg);*/
+    /*background-repeat: repeat;*/
+    /*background-position: center 0;*/
   }
   .foot {
     margin-top: 50px;
@@ -113,7 +120,8 @@
     height: 520px;
     position: absolute;
     float: left;
-    padding: 0 0 0 0px;
+    padding: 20px;
+    box-sizing: border-box;
   }
 
 
@@ -128,12 +136,12 @@
 
 
 
-  .pic img{
-    height: 100%;
-  }
+  /*.pic img{*/
+    /*height: 100%;*/
+  /*}*/
 
-  .pic img{
-    height: 100%;
+  .pic>span:hover img{
+    height: 235px;
   }
   .icon {
     position: absolute;

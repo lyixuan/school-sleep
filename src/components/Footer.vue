@@ -1,6 +1,6 @@
 <template>
   <div class="footer">
-    Copyright © 2016-2020
+    Copyright © 2016-2020 All Rights Reserved
   </div>
 </template>
 
