@@ -1,14 +1,18 @@
 <template>
   <div id="login">
     <div class="head">
-      <img src="./assets/img-com/logo.png" height="65" style="vertical-align: middle;margin-top: -10px;margin-right: 10px;"/>
+      <img src="./assets/img-com/logo.png" height="65"
+           style="vertical-align: middle;margin-top: -10px;margin-right: 10px;"/>
       {{app_name}}
     </div>
     <div class="content">
       <div class="pic" style="position: relative">
-        <span style="position: absolute;top: 10%;left: 100px;"><img height="218" src="./assets/img-com/g2.png"/></span>
-        <span style="position: absolute;top: 42%;left: 350px;"><img height="233" src="./assets/img-com/g1.png"/></span>
-        <span style="position: absolute;top: 10%;left: 650px;"><img height="209" src="./assets/img-com/g3.png"/></span>
+        <i>统计分析</i>
+        <i>实时监控</i>
+        <i>灵活管理</i>
+        <span class="sp1"><img height="218" src="./assets/img-com/g2.png"/></span>
+        <span class="sp2"><img height="233" src="./assets/img-com/g1.png"/></span>
+        <span class="sp3"><img height="209" src="./assets/img-com/g3.png"/></span>
       </div>
       <div class="wrap">
         <div class="icon"><img src="./assets/img-com/login_icon.png"/></div>
@@ -18,7 +22,7 @@
           <input type="text" v-focus v-model="user_code" placeholder="账号">
         </div>
         <div class="input-wrapper">
-          <input type="password" v-model="password"  @keyup.enter="submit" placeholder="密码">
+          <input type="password" v-model="password" @keyup.enter="submit" placeholder="密码">
           <span class="error" :class="{show:isShow}">用户名或密码错误</span>
         </div>
         <div class="button-wrapper">
@@ -110,6 +114,7 @@
     /*background-repeat: repeat;*/
     /*background-position: center 0;*/
   }
+
   .foot {
     margin-top: 50px;
     text-align: center;
@@ -124,25 +129,61 @@
     box-sizing: border-box;
   }
 
+  .pic > i {
+    position: absolute;
+    color: #ffffff;
+    font-size: 28px;
+    width: 140px;
+    font-style: normal;
+  }
 
-  @media screen and (max-width: 1460px){
-    .content{
+  .pic > i:nth-child(1) {
+    left: 140px;
+    bottom: 26%;
+  }
+
+  .pic > i:nth-child(2) {
+    left: 420px;
+    top: 26%;
+  }
+
+  .pic > i:nth-child(3) {
+    left: 700px;
+    bottom: 26%;
+  }
+
+  .pic>span{
+    position: absolute;
+  }
+  .pic > .sp1 {
+    top: 10%;
+    left: 90px;
+  }
+
+  .pic > .sp2 {
+    top: 38%;
+    left: 350px;
+  }
+
+  .pic > .sp3 {
+    top: 10%;
+    left: 650px;
+  }
+
+  @media screen and (max-width: 1460px) {
+    .content {
       height: 420px;
     }
-    .pic{
+
+    .pic {
       height: 420px;
     }
   }
 
-
-
-  /*.pic img{*/
-    /*height: 100%;*/
-  /*}*/
-
-  .pic>span:hover img{
+  .pic > span:hover img {
     height: 235px;
   }
+
   .icon {
     position: absolute;
     top: 20px;
@@ -162,17 +203,20 @@
     box-sizing: border-box;
     position: relative;
   }
-  @media screen and (min-width: 1650px){
-    .wrap{
+
+  @media screen and (min-width: 1650px) {
+    .wrap {
       margin-right: 100px;
     }
   }
-  @media screen and (min-width: 1650px){
-    .wrap{
+
+  @media screen and (min-width: 1650px) {
+    .wrap {
       height: 430px;
       width: 400px;
       margin-right: 200px;
     }
+
     .icon {
       left: 155px;
     }

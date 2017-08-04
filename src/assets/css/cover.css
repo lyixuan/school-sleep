@@ -76,10 +76,17 @@
   margin-bottom: 15px;
 }
 
-.right_card .el-checkbox:first-child {
+.right_card .el-checkbox {
   margin-left: 15px;
 }
-.right_card1 .el-checkbox:first-child {
+.right_card1 .el-checkbox {
   margin-left: 15px;
 }
 
+.radio_box  .el-radio{
+  display: block!important;
+  margin-bottom: 15px;
+}
+.radio_box  .el-radio{
+  margin-left: 15px;
+}

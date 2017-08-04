@@ -66,15 +66,15 @@
               <span class="r_name">{{item.user_des}}</span>
             </p>
           </div>
-          <div class="right_card"  style="position: relative">
+          <div class="right_card radio_box"  style="position: relative">
             <div class="r_tt">角 色 列 表 &nbsp; [{{checkedBtnName}}]</div>
             <el-button size="mini" type="primary" style="position:absolute;right: 20px; top:14px;z-index: 100"
                        @click="saveUserRole()"><i class="el-icon-check
 "></i> 保 存
             </el-button>
-            <el-checkbox-group v-model="user_roles" v-loading="loading">
-              <el-checkbox :label=item.role_id v-for="item in roles" :key="item.role_id">{{item.role_name}}</el-checkbox>
-            </el-checkbox-group>
+            <el-radio-group v-model="user_roles" v-loading="loading">
+              <el-radio :label=item.role_id v-for="item in roles" :key="item.role_id">{{item.role_name}}</el-radio>
+            </el-radio-group>
             </p>
           </div>
         </div>
@@ -208,7 +208,7 @@
         actResetDialog: false,
         resetId: '',
         resetName: '',
-        user_roles: [],
+        user_roles: '',
         loading: false,
         loading1: false,
 
@@ -447,9 +447,9 @@
           } else {
             _this.alertMsg("error", response.body.msg ? response.body.msg : '服务器端错误')
           }
-          this.getUserRoles({user_code: this.checkedBtnId})
+          this.getUserRoles({user_code: this.checkedBtnId,user_des: this.checkedBtnName})
         }, (response) => {
-          this.getUserRoles({user_code: this.checkedBtnId})
+          this.getUserRoles({user_code: this.checkedBtnId,user_des: this.checkedBtnName})
           console.log(response.body)
         })
       }
@@ -638,12 +638,6 @@
   p.active {
     background: #42A4D3;
     color: #fff;
-  }
-  .right_card .el-checkbox:first-child {
-    margin-left: 15px!important;
-  }
-  .right_card1 .el-checkbox:first-child {
-    margin-left: 15px!important;
   }
 
 </style>
