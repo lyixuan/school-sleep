@@ -19,7 +19,6 @@
       </el-table>
     </el-dialog>
 
-
     <div class="box" v-loading.body="t_loading">
       <div class="left">
         <div class="row1">
@@ -149,9 +148,6 @@
             <el-cascader :options="levels" change-on-select
                          @change="handleChange" v-model="bedInputForm.level"></el-cascader>
           </el-form-item>
-          <el-form-item label="车次或班次" :label-width="formLabelWidth" required>
-            <el-input v-model="bedInputForm.train_des" auto-complete="on"></el-input>
-          </el-form-item>
           <el-form-item label="计划入寓时间" :label-width="formLabelWidth">
             <el-date-picker v-model="bedInputForm.sche_in_time"
                             type="datetime" :editable="false" :clearable="false"
@@ -186,9 +182,6 @@
           </el-form-item>
           <el-form-item label="分级" :label-width="formLabelWidth">
             <el-input v-model="bedShowForm.level" :disabled="true"></el-input>
-          </el-form-item>
-          <el-form-item label="车次或班次" :label-width="formLabelWidth" >
-            <el-input v-model="bedShowForm.train_des" auto-complete="on" :disabled="true"></el-input>
           </el-form-item>
           <el-form-item label="计划入寓时间" :label-width="formLabelWidth">
             <el-date-picker v-model="bedShowForm.sche_in_time"
@@ -275,7 +268,6 @@
           sche_out_time: "",
           bed_des: "",
           room_des: "",
-          train_des:'',
           bed_id:'',
           room_id:''
         },
@@ -290,7 +282,6 @@
           bed_state_des: "",
           bed_des: "",
           room_des: "",
-          train_des:'',
           alarm:[]
 
         },
@@ -480,7 +471,6 @@
               student_name: "",
               sche_in_time: "",
               sche_out_time: "",
-              train_des: "",
               room_id : room.room_id,
               room_des : room.room_des,
               bed_id : bed.bed_id,
@@ -526,7 +516,6 @@
               _this.bedInputForm.student_name = response.body.data.student_name;
               _this.bedInputForm.sche_in_time = response.body.data.sche_in_time;
               _this.bedInputForm.sche_out_time = response.body.data.sche_out_time;
-              _this.bedInputForm.train_des = response.body.data.train_des;
             } else {
               _this.alertMsg("error", response.body.msg ? response.body.msg : '服务器端错误')
             }
@@ -538,7 +527,7 @@
       },
       saveInApart(){
         let _this = this;
-        if (this.bedInputForm.student_id && this.bedInputForm.student_name&& this.bedInputForm.train_des) {
+        if (this.bedInputForm.student_id && this.bedInputForm.student_name) {
           this.bedInputForm.sche_in_time =new Date(this.bedInputForm.sche_in_time).Format('yyyy-MM-dd hh:mm:ss')
           this.bedInputForm.sche_out_time =new Date(this.bedInputForm.sche_out_time).Format('yyyy-MM-dd hh:mm:ss')
           if(this.bedInputForm.sche_in_time>=this.bedInputForm.sche_out_time){
