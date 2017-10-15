@@ -170,7 +170,7 @@
         </div>
       </el-dialog>
 
-      <el-dialog class="bedInputDialog width850" title="入寓信息监控" :visible.sync="bedShowDialog">
+      <el-dialog class="bedInputDialog width850" title="入寓信息监控" :visible.sync="bedShowDialog" :before-close="handleCloseD">
         <div class="dWrap">
           <div class="d-left">
             <div class="block1">
@@ -180,6 +180,7 @@
               <p> <span class="label">姓名</span>： <span>{{bedShowForm.student_name}}</span></p>
               <p> <span class="label">开始时间</span>： <span>{{bedShowForm.sche_in_time}}</span></p>
               <p> <span class="label">结束时间</span>： <span>{{bedShowForm.sche_out_time}}</span></p>
+              <p class="l-alert"> <span class="label">报警信息</span>： <span>{{bedShowForm.alarm.length > 0?bedShowForm.alarm.length+' 次':'无'}}</span></p>
             </div>
             <div class="block2">
               {{bedShowForm.bed_state_des}}
@@ -197,12 +198,9 @@
               </p>
             </div>
           </div>
-          <canvas id="canvas" class="d-right">
+          <canvas id="canvas" class="d-right" width="660" height="600">
             Fallback content, in case the browser does not support Canvas.
           </canvas>
-        </div>
-        <div slot="footer" class="dialog-footer">
-          <el-button @click="bedShowDialog = false">关 闭</el-button>
         </div>
       </el-dialog>
     </div>
@@ -285,8 +283,9 @@
           bed_des: "",
           room_des: "",
           alarm: []
-
         },
+        myWebSocketClient: '',
+        timer: '',
       }
     },
     mounted () {
@@ -465,8 +464,9 @@
       },
       openDetail(bed, room){
         let _this = this;
+//        0	空置 1	在床 2	离床 3	空闲 4	故障 5 报警
         if (bed.bed_state_id == 3) {
-          // 空闲,录入
+          // 录入
           this.bedInputForm = {
             student_id: "",
             level: [],
@@ -479,6 +479,10 @@
             bed_des: bed.bed_des
           };
           this.bedInputDialog = true;
+        } else if (bed.bed_state_id == 0){
+          this.$message('床位空置');
+        } else if (bed.bed_state_id == 4){
+          this.$message.error('床位故障');
         } else {
           // 非空闲，获取详情
           this.$resource(P_BASE + 'get_in_apart').get({student_id:bed.student_id}).then((response) => {
@@ -499,14 +503,12 @@
               this.$nextTick(function () {
                 // DOM 现在更新了
                 // this 绑定到当前实例
-                _this.initChart();
+                _this.initChart(bed.bed_id);
               })
             } else {
               _this.alertMsg("error", response.body.msg ? response.body.msg : '服务器端错误')
             }
           })
-//          window.open('http://' + window.location.host + '/bed_detail/' + bed.bed_id)
-
         }
       },
       getDetailByCustId(){
@@ -568,7 +570,7 @@
           this.levels = response.body.data;
         })
       },
-      initChart () {
+      initChart (bedId) {
         /*
          * 基本参数
          * strBedID: 点击的床位的BedID,将此BedID发送给服务器，以获取该床位的数据
@@ -585,24 +587,23 @@
          * nDptr_BCG: BCG波形索引
          * nDptr_CES: CES波形索引
          */
-        var strBedID;
-        var nData_Receive_1s;
-        var nLib_1s;
-        var nSingleLib;
-        var nLibs_Ready;
-        var nDptr_Read;
-        var srcData_Buf;
-        var nMaxLibs;
-        var nDptr_WriteLibs;
-        var nDptr_ReadLibs;
-        var nDptr_ReadSingleLib;
-        var nDptr_BCG,nDptr_CES;
+        let strBedID;
+        let nData_Receive_1s;
+        let nLib_1s;
+        let nSingleLib;
+        let nLibs_Ready;
+        let nDptr_Read;
+        let srcData_Buf;
+        let nMaxLibs;
+        let nDptr_WriteLibs;
+        let nDptr_ReadLibs;
+        let nDptr_ReadSingleLib;
+        let nDptr_BCG,nDptr_CES;
 
         //WebSocket信息
-        var isExisit_WebSocket = true;
-        var myWebSocketClient;
-        var strURI_Server;
-        var isCreate_WebSocket = false;
+        let isExisit_WebSocket = true;
+        let strURI_Server;
+        let isCreate_WebSocket = false;
 
         /*
          * 绘图画布信息
@@ -620,57 +621,101 @@
          * yCES_Max, yCES_Min --> 呼吸波形的高度范围，用来进行坐标转换
          */
 
-        var canvas_DC_Draw;
-        var nCanvasWidth, nCanvasHeight;
-        var isFirstDraw;
-        var xOld, yOld_BCG, yOld_CES;
-        var BCG_Value, CES_Value;
-        var yBCG_Max, yBCG_Min, yCES_Max, yCES_Min;
+        var canvas_DC_Draw = null;
+        let nCanvasWidth, nCanvasHeight;
+        let isFirstDraw;
+        let xOld, yOld_BCG, yOld_CES;
+        let BCG_Value, CES_Value;
+        let yBCG_Max, yBCG_Min, yCES_Max, yCES_Min;
 
-        function myWebSocketClient_OnOpen() {
-          myWebSocketClient.send('getData:' + strBedID);
+        /*
+         readyState : 0=> WebSocket.CONNECTING
+         1=> WebSocket.OPEN
+         2=> WebSocket.CLOSING
+         3=> WebSocket.CLOSED
+         */
+        let that = this;
+        function checkWebSocket()
+        {
+          if(!isCreate_WebSocket && isExisit_WebSocket)
+          {
+            //连接服务器
+            try
+            {
+              if('WebSocket' in window)
+              {
+                that.myWebSocketClient = new WebSocket(strURI_Server);
+              } else {
+                if('MozWebSocket' in window) {
+                  that.myWebSocketClient = new MozWebSocket(strURI_Server);
+                }
+              }
+              isCreate_WebSocket = true;
+            }
+            catch(ex)
+            {
+              console.log(ex);
+              return;
+            }
+
+            that.myWebSocketClient.onopen     = myWebSocketClient_OnOpen;
+            that.myWebSocketClient.binaryType = 'arraybuffer';
+            that.myWebSocketClient.onmessage  = myWebSocketClient_OnMessage;
+            that.myWebSocketClient.onclose    = myWebSocketClient_OnClose;
+            that.myWebSocketClient.onerror    = myWebSocketClient_OnError;
+          }
+        }
+
+        function myWebSocketClient_OnOpen()
+        {
+          that.myWebSocketClient.send(`getDataOn:` + strBedID);
         }
 
         //获取数据
         function myWebSocketClient_OnMessage(event) {
-          if(event.data.length != nData_Receive_1s) return;
+          if(event.data.byteLength != nData_Receive_1s) return;
 
           nLibs_Ready++;
 
           //防止缓存数据过大
           nLibs_Ready = nLibs_Ready>nMaxLibs ? nMaxLibs:nLibs_Ready;
 
-          var receBuf = new Int8Array(event.data);
-
+          var receBuf = new Uint8Array(event.data);
           srcData_Buf[nDptr_WriteLibs++] = receBuf.slice(0);
           nDptr_WriteLibs = nDptr_WriteLibs % nMaxLibs;
+          console.log();
 
         }
 
-        function myWebSocketClient_OnClose() {
+        function myWebSocketClient_OnClose()
+        {
           isCreate_WebSocket = false;
           //是否将所有数据置空
         }
 
-        function myWebSocketClient_OnError() {
+        function myWebSocketClient_OnError()
+        {
           isCreate_WebSocket = false;
 
           //测试是否需要重新连接
         }
 
         //画布绘图数据
-        function dealBCG(BCG_Value) {
+        function dealBCG(BCG_Value)
+        {
           return yBCG_Min + parseInt((yBCG_Max - yBCG_Min) * (1 - BCG_Value / 256));
         }
 
-        function dealCES(CES_Value) {
+        function dealCES(CES_Value)
+        {
           return yCES_Min + parseInt((yCES_Max - yCES_Min) * (1 - CES_Value / 256));
         }
 
         //绘制波形
         //每秒来50个包,每40ms绘制两个包,4个点
         //但是,由于时间setInterval不是严格以40ms(>40ms)来中断,所以,一旦数据缓存过大,需要跳包
-        function prepare() {
+        function prepare()
+        {
           //从缓存中获取数据
           if(!isCreate_WebSocket)
           {
@@ -729,8 +774,11 @@
           }
         }
 
-        function drawPoint() {
-          if(isFirstDraw) {
+        function drawPoint()
+        {
+
+          if(isFirstDraw)
+          {
             yOld_BCG = dealBCG(BCG_Value);
             yOld_CES = dealCES(CES_Value);
 
@@ -767,19 +815,22 @@
 
           xOld++;
 
+          console.log(`x:${xOld},y:${yOld_CES}`);
+
           yOld_BCG = yPos_BCG;
           yOld_CES = yPos_CES;
         }
 
         //初始化信息
-        function Init0() {
+        function Init0()
+        {
           //基本数据
           srcData_Buf = [];
-          strBedID = '20101';
-          strURI_Server = 'ws://192.168.1.248:7749';
+          strBedID = bedId;
+          strURI_Server = window.P_WEBSCOKET;
 
-          nData_Receive_1s = 250;
-          nSingleLib = 5;
+          nData_Receive_1s = 300;
+          nSingleLib = 6;
           nLib_1s = 50;
           nLibs_Ready = -1;
           nDptr_Read = 0;
@@ -791,14 +842,13 @@
           nDptr_CES = 4;
 
           //绘图信息
-          let canvas = document.getElementById('canvas');
-          console.log(canvas);
-          canvas_DC_Draw = canvas.getContext('2d');
+          canvas_DC_Draw = document.getElementById('canvas').getContext('2d');
           canvas_DC_Draw.lineWidth = 2;
           nCanvasWidth = canvas.width;
           nCanvasHeight = canvas.height;
 
           canvas_DC_Draw.fillStyle = "Black";
+          console.log(nCanvasWidth);
           canvas_DC_Draw.fillRect(0, 0, nCanvasWidth, nCanvasHeight);
 
           isFirstDraw = true;
@@ -813,55 +863,14 @@
           yCES_Max = nCanvasHeight;
         }
 
-        function checkWebSocket () {
-          try
-          {
-            var dummy = new WebSocket('ws://localhost:8989/test');
-          }
-          catch(ex)
-          {
-            try
-            {
-              webSocket = new MozWebSocket('ws://localhost:8989/test');
-            }
-            catch(ex)
-            {
-              isExisit_WebSocket = false;
-            }
-          }
-
-          if(!isCreate_WebSocket && isExisit_WebSocket)
-          {
-            //连接服务器
-            try
-            {
-              if('WebSocket' in window)
-              {
-                myWebSocketClient = new WebSocket(strURI_Server);
-              }
-              else if('MozWebSocket' in window)
-              {
-                myWebSocketClient = new MozWebSocket(strURI_Server);
-              }
-              isCreate_WebSocket = true;
-            }
-            catch(ex)
-            {
-              console.log(ex);
-              return;
-            }
-
-            myWebSocketClient.binaryType = 'ayyarybuffer';
-            myWebSocketClient.onopen     = myWebSocketClient_OnOpen;
-            myWebSocketClient.onmessage  = myWebSocketClient_OnMessage;
-            myWebSocketClient.onclose    = myWebSocketClient_OnClose;
-            myWebSocketClient.onerror    = myWebSocketClient_OnError;
-          }
-        }
-
         Init0();
         checkWebSocket();
-        setInterval(prepare, 40);
+        this.timer = setInterval(prepare, 40);
+      },
+      handleCloseD (done) {
+        clearInterval(this.timer);
+        this.myWebSocketClient.close();
+        done();
       },
     }
   }
@@ -1256,13 +1265,15 @@
 
   .dWrap {
     border: 1px solid #333;
-    width: 805px;
-    height: 500px;
+    width: 905px;
+    height: 600px;
+    background: #000;
+    color: #fff;
   }
 
   .d-left, .d-right {
     float: left;
-    height: 500px;
+    height: 600px;
   }
 
   .d-left {
@@ -1271,12 +1282,12 @@
   }
 
   .d-right {
-    width: 564px;
-    border-left: 1px solid #333;
+    width: 664px;
+    border-left: 1px solid #fff;
   }
 
   .block1 {
-    margin: 20px 10px 10px;
+    margin: 10px;
   }
 
   .block1 p {
@@ -1301,20 +1312,21 @@
   }
 
   .block2 {
-    border-top: 1px solid #000;
-    font-size: 80px;
-    padding: 0 20px;
+    border-top: 1px solid #fff;
+    font-size: 90px;
+    padding: 0 10px;
     letter-spacing: 15px;
     color: #FFFF38;
+    text-align: center;
   }
 
   .block3, .block4{
-    border-top: 1px solid #000;
+    border-top: 1px solid #fff;
     padding: 5px 20px;
   }
 
   .block3 .val, .block4 .val {
-    font-size: 50px;
+    font-size: 70px;
   }
 
   .block3{
@@ -1323,6 +1335,14 @@
 
   .block4 {
     color: #8285FC;
+  }
+
+  .block3 p:nth-child(2),.block4 p:nth-child(2){
+    text-align: center;
+  }
+
+  .l-alert{
+    color: red;
   }
 
 </style>
