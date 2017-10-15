@@ -135,7 +135,9 @@
       </div>
       <!--寓信息-->
       <el-dialog class="bedInputDialog" title="增加入寓信息" :visible.sync="bedInputDialog">
-        <div style="text-align: right;color:#35A8FD;margin-bottom: 5px;margin-top: -5px;">{{bedInputForm.room_des}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {{bedInputForm.bed_des}}</div>
+        <div style="text-align: right;color:#35A8FD;margin-bottom: 5px;margin-top: -5px;">{{bedInputForm.room_des}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          {{bedInputForm.bed_des}}
+        </div>
         <el-form :model="bedInputForm">
           <el-form-item label="学号" :label-width="formLabelWidth" required>
             <el-input v-model="bedInputForm.student_id" auto-complete="on"></el-input>
@@ -168,37 +170,37 @@
         </div>
       </el-dialog>
 
-      <el-dialog class="bedInputDialog" title="入寓信息" :visible.sync="bedShowDialog">
-        <div style="text-align: right;color:#35A8FD;margin-bottom: 5px;margin-top: -5px;">{{bedShowForm.room_des}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {{bedShowForm.bed_des}}</div>
-        <el-form :model="bedShowForm">
-          <el-form-item label="床位状态" :label-width="formLabelWidth">
-            <el-input v-model="bedShowForm.bed_state_des" :disabled="true"></el-input>
-          </el-form-item>
-          <el-form-item label="学号" :label-width="formLabelWidth">
-            <el-input v-model="bedShowForm.student_id" :disabled="true"></el-input>
-          </el-form-item>
-          <el-form-item label="姓名" :label-width="formLabelWidth">
-            <el-input v-model="bedShowForm.student_name" :disabled="true"></el-input>
-          </el-form-item>
-          <el-form-item label="分级" :label-width="formLabelWidth">
-            <el-input v-model="bedShowForm.level" :disabled="true"></el-input>
-          </el-form-item>
-          <el-form-item label="计划入寓时间" :label-width="formLabelWidth">
-            <el-date-picker v-model="bedShowForm.sche_in_time"
-                            type="datetime" :editable="false" :clearable="false"
-                            placeholder="选择时间" :disabled="true">
-            </el-date-picker>
-          </el-form-item>
-          <el-form-item label="计划出寓时间" :label-width="formLabelWidth">
-            <el-date-picker v-model="bedShowForm.sche_out_time"
-                            type="datetime" :editable="false" :clearable="false"
-                            placeholder="选择时间" :disabled="true">
-            </el-date-picker>
-          </el-form-item>
-          <el-form-item label="报警记录" :label-width="formLabelWidth">
-            <div class="alarm" v-for="item in bedShowForm.alarm" :key="item.alarm_time"><span>{{item.alarm_time}}</span><span>{{item.alarm_state_des}}</span></div>
-          </el-form-item>
-           </el-form>
+      <el-dialog class="bedInputDialog width850" title="入寓信息监控" :visible.sync="bedShowDialog">
+        <div class="dWrap">
+          <div class="d-left">
+            <div class="block1">
+              <p> <span class="label">房间</span>： <span>{{bedShowForm.room_des}}</span> </p>
+              <p> <span class="label">床位</span>： <span>{{bedShowForm.bed_des}}</span></p>
+              <p> <span class="label">学号</span>： <span>{{bedShowForm.student_id}}</span></p>
+              <p> <span class="label">姓名</span>： <span>{{bedShowForm.student_name}}</span></p>
+              <p> <span class="label">开始时间</span>： <span>{{bedShowForm.sche_in_time}}</span></p>
+              <p> <span class="label">结束时间</span>： <span>{{bedShowForm.sche_out_time}}</span></p>
+            </div>
+            <div class="block2">
+              {{bedShowForm.bed_state_des}}
+            </div>
+            <div class="block3">
+              <p>心率（次/分）</p>
+              <p class="val">
+                18
+              </p>
+            </div>
+            <div class="block4">
+              <p>呼吸率（次/分）</p>
+              <p class="val">
+                10
+              </p>
+            </div>
+          </div>
+          <canvas id="canvas" class="d-right">
+            Fallback content, in case the browser does not support Canvas.
+          </canvas>
+        </div>
         <div slot="footer" class="dialog-footer">
           <el-button @click="bedShowDialog = false">关 闭</el-button>
         </div>
@@ -268,8 +270,8 @@
           sche_out_time: "",
           bed_des: "",
           room_des: "",
-          bed_id:'',
-          room_id:''
+          bed_id: '',
+          room_id: ''
         },
 
         bedShowDialog: false,
@@ -282,7 +284,7 @@
           bed_state_des: "",
           bed_des: "",
           room_des: "",
-          alarm:[]
+          alarm: []
 
         },
       }
@@ -461,57 +463,62 @@
         Velocity(el, {opacity: 1}, {duration: 300})
         Velocity(el, {opacity: 1}, {complete: done})
       },
-      openDetail(bed,room){
+      openDetail(bed, room){
         let _this = this;
         if (bed.bed_state_id == 3) {
           // 空闲,录入
-          this.bedInputForm={
-              student_id: "",
-              level: [],
-              student_name: "",
-              sche_in_time: "",
-              sche_out_time: "",
-              room_id : room.room_id,
-              room_des : room.room_des,
-              bed_id : bed.bed_id,
-              bed_des : bed.bed_des
+          this.bedInputForm = {
+            student_id: "",
+            level: [],
+            student_name: "",
+            sche_in_time: "",
+            sche_out_time: "",
+            room_id: room.room_id,
+            room_des: room.room_des,
+            bed_id: bed.bed_id,
+            bed_des: bed.bed_des
           };
           this.bedInputDialog = true;
         } else {
           // 非空闲，获取详情
-//          this.$resource(P_BASE + 'get_in_apart').get({student_id:bed.student_id}).then((response) => {
-//            if (response.body.code == 200) {
-//              _this.bedShowForm = response.body.data;
-//              let level='';
-//              for(let i=0;i<response.body.data.level.length;i++){
-//                level+=response.body.data.level[i].name;
-//                if(i<response.body.data.level.length-1){
-//                  level+="->"
-//                }
-//              }
-//              _this.bedShowForm.level=level;
-//              _this.bedShowForm.bed_state_des = bed.bed_state_des;
-//              _this.bedShowForm.room_des = room.room_des;
-//              _this.bedShowForm.bed_des = bed.bed_des;
-//              _this.bedShowDialog = true;
-//            } else {
-//              _this.alertMsg("error", response.body.msg ? response.body.msg : '服务器端错误')
-//            }
-//          })
-          window.open('http://'+window.location.host+'/bed_detail/'+bed.bed_id)
+          this.$resource(P_BASE + 'get_in_apart').get({student_id:bed.student_id}).then((response) => {
+            if (response.body.code == 200) {
+              _this.bedShowForm = response.body.data;
+              let level='';
+              for(let i=0;i<response.body.data.level.length;i++){
+                level+=response.body.data.level[i].name;
+                if(i<response.body.data.level.length-1){
+                  level+="->"
+                }
+              }
+              _this.bedShowForm.level=level;
+              _this.bedShowForm.bed_state_des = bed.bed_state_des;
+              _this.bedShowForm.room_des = room.room_des;
+              _this.bedShowForm.bed_des = bed.bed_des;
+              _this.bedShowDialog = true;
+              this.$nextTick(function () {
+                // DOM 现在更新了
+                // this 绑定到当前实例
+                _this.initChart();
+              })
+            } else {
+              _this.alertMsg("error", response.body.msg ? response.body.msg : '服务器端错误')
+            }
+          })
+//          window.open('http://' + window.location.host + '/bed_detail/' + bed.bed_id)
 
         }
       },
       getDetailByCustId(){
         let _this = this;
         if (this.bedInputForm.student_id) {
-          this.$resource(P_BASE + 'get_in_apart').get({student_id:this.bedInputForm.student_id}).then((response) => {
+          this.$resource(P_BASE + 'get_in_apart').get({student_id: this.bedInputForm.student_id}).then((response) => {
             if (response.body.code == 200) {
-              let level=[];
-              for(let i=0;i<response.body.data.level.length;i++){
+              let level = [];
+              for (let i = 0; i < response.body.data.level.length; i++) {
                 level.push(response.body.data.level[i].value)
               }
-              _this.bedInputForm.level=level
+              _this.bedInputForm.level = level
               _this.bedInputForm.student_id = response.body.data.student_id;
               _this.bedInputForm.student_name = response.body.data.student_name;
               _this.bedInputForm.sche_in_time = response.body.data.sche_in_time;
@@ -520,7 +527,7 @@
               _this.alertMsg("error", response.body.msg ? response.body.msg : '服务器端错误')
             }
           })
-        }else {
+        } else {
           _this.alertMsg("warning", '请输入学号查询')
         }
 
@@ -528,13 +535,13 @@
       saveInApart(){
         let _this = this;
         if (this.bedInputForm.student_id && this.bedInputForm.student_name) {
-          this.bedInputForm.sche_in_time =new Date(this.bedInputForm.sche_in_time).Format('yyyy-MM-dd hh:mm:ss')
-          this.bedInputForm.sche_out_time =new Date(this.bedInputForm.sche_out_time).Format('yyyy-MM-dd hh:mm:ss')
-          if(this.bedInputForm.sche_in_time>=this.bedInputForm.sche_out_time){
+          this.bedInputForm.sche_in_time = new Date(this.bedInputForm.sche_in_time).Format('yyyy-MM-dd hh:mm:ss')
+          this.bedInputForm.sche_out_time = new Date(this.bedInputForm.sche_out_time).Format('yyyy-MM-dd hh:mm:ss')
+          if (this.bedInputForm.sche_in_time >= this.bedInputForm.sche_out_time) {
             _this.alertMsg("warning", '出寓时间应该晚于入寓时间')
-              return
+            return
           }
-          let param= this.bedInputForm;
+          let param = this.bedInputForm;
           this.$resource(P_BASE + 'add_in_apart').save({}, param).then((response) => {
             if (response.body.code == 200) {
 //              入寓成功
@@ -548,7 +555,7 @@
           }, (response) => {
             console.log(response.body)
           })
-        }else {
+        } else {
           _this.alertMsg("warning", '请填写必填项')
         }
 
@@ -560,13 +567,308 @@
         this.$resource(P_BASE + 'level_list').get().then((response) => {
           this.levels = response.body.data;
         })
-      }
+      },
+      initChart () {
+        /*
+         * 基本参数
+         * strBedID: 点击的床位的BedID,将此BedID发送给服务器，以获取该床位的数据
+         * nLib_1s: 每秒接受的包书,也是每个数组的包的个数
+         * nData_Receive_1s: 每次接受数据包的长度(1秒接受一个包)
+         * nSingleLib: 每个小包的长度
+         * nLibs_Ready: 准备绘制波形的数据包的个数据
+         * nDptr_Read: 每次绘图获取数据的指针
+         * srcData_Buf: 结束数据的缓存数据（2维数组）,将每秒的数据作为一个数组
+         * nMaxLibs: 二维数组最大接受的包数
+         * nDptr_WriteLibs: 写数据包的指针
+         * nDptr_ReadLibs:读数据包的指针
+         * nDptr_ReadSingleLib: 读取单个数据包的数据指针
+         * nDptr_BCG: BCG波形索引
+         * nDptr_CES: CES波形索引
+         */
+        var strBedID;
+        var nData_Receive_1s;
+        var nLib_1s;
+        var nSingleLib;
+        var nLibs_Ready;
+        var nDptr_Read;
+        var srcData_Buf;
+        var nMaxLibs;
+        var nDptr_WriteLibs;
+        var nDptr_ReadLibs;
+        var nDptr_ReadSingleLib;
+        var nDptr_BCG,nDptr_CES;
+
+        //WebSocket信息
+        var isExisit_WebSocket = true;
+        var myWebSocketClient;
+        var strURI_Server;
+        var isCreate_WebSocket = false;
+
+        /*
+         * 绘图画布信息
+         * canvas_DC_Draw     --> 画布的指针
+         * nCanvasWidth       --> 画布的宽度
+         * nCanvasHeight      --> 画布的高度
+         *
+         * isFirstDraw        --> 保存第一个点的Y坐标
+         * xOld               --> 画线的X坐标，每绘制一个点，坐标将刷新一次
+         * BCG_Value          --> 实时BCG波形值
+         * CES_Value          --> 实时CES波形值
+         * yOld_BCG           --> 心率波形的Y坐标（上一个点）
+         * yOld_CES           --> 呼吸波形的Y坐标（上一个点）
+         * yBCG_Max, yBCG_Min -->心率波形的高度范围，用来进行坐标转换
+         * yCES_Max, yCES_Min --> 呼吸波形的高度范围，用来进行坐标转换
+         */
+
+        var canvas_DC_Draw;
+        var nCanvasWidth, nCanvasHeight;
+        var isFirstDraw;
+        var xOld, yOld_BCG, yOld_CES;
+        var BCG_Value, CES_Value;
+        var yBCG_Max, yBCG_Min, yCES_Max, yCES_Min;
+
+        function myWebSocketClient_OnOpen() {
+          myWebSocketClient.send('getData:' + strBedID);
+        }
+
+        //获取数据
+        function myWebSocketClient_OnMessage(event) {
+          if(event.data.length != nData_Receive_1s) return;
+
+          nLibs_Ready++;
+
+          //防止缓存数据过大
+          nLibs_Ready = nLibs_Ready>nMaxLibs ? nMaxLibs:nLibs_Ready;
+
+          var receBuf = new Int8Array(event.data);
+
+          srcData_Buf[nDptr_WriteLibs++] = receBuf.slice(0);
+          nDptr_WriteLibs = nDptr_WriteLibs % nMaxLibs;
+
+        }
+
+        function myWebSocketClient_OnClose() {
+          isCreate_WebSocket = false;
+          //是否将所有数据置空
+        }
+
+        function myWebSocketClient_OnError() {
+          isCreate_WebSocket = false;
+
+          //测试是否需要重新连接
+        }
+
+        //画布绘图数据
+        function dealBCG(BCG_Value) {
+          return yBCG_Min + parseInt((yBCG_Max - yBCG_Min) * (1 - BCG_Value / 256));
+        }
+
+        function dealCES(CES_Value) {
+          return yCES_Min + parseInt((yCES_Max - yCES_Min) * (1 - CES_Value / 256));
+        }
+
+        //绘制波形
+        //每秒来50个包,每40ms绘制两个包,4个点
+        //但是,由于时间setInterval不是严格以40ms(>40ms)来中断,所以,一旦数据缓存过大,需要跳包
+        function prepare() {
+          //从缓存中获取数据
+          if(!isCreate_WebSocket)
+          {
+            //若是web连不上直接给直线
+            BCG_Value = 127;
+            CES_Value = 127;
+
+            drawPoint();
+            drawPoint();
+            return;
+          }
+
+          if(nLibs_Ready >= 0)//缓存中存在数据
+          {
+            //0	     1      2       3       4       5
+            //NUM    DATA   BCG1    BCG2    RESP1   RESP2
+            //绘制1个包的数据
+            for(var i=0;i<2;i++)
+            {
+              BCG_Value = srcData_Buf[nDptr_ReadLibs][nDptr_ReadSingleLib * nSingleLib + nDptr_BCG + i];
+              CES_Value = srcData_Buf[nDptr_ReadLibs][nDptr_ReadSingleLib * nSingleLib + nDptr_CES + i];
+              drawPoint();
+            }
+
+            nDptr_ReadSingleLib = nLibs_Ready>1 ? nDptr_ReadSingleLib+1: nDptr_ReadSingleLib+2;
+            if(nDptr_ReadSingleLib >= nLib_1s)
+            {
+              nDptr_ReadSingleLib = 0;
+              nDptr_ReadLibs = (++nDptr_ReadLibs) % nMaxLibs
+              nLibs_Ready--;
+            }
+
+            //绘制第二个包的数据
+            for(var i=0;i<2;i++)
+            {
+              BCG_Value = srcData_Buf[nDptr_ReadLibs][nDptr_ReadSingleLib * nSingleLib + nDptr_BCG + i];
+              CES_Value = srcData_Buf[nDptr_ReadLibs][nDptr_ReadSingleLib * nSingleLib + nDptr_CES + i];
+              drawPoint();
+            }
+
+            nDptr_ReadSingleLib = nLibs_Ready>1 ? nDptr_ReadSingleLib+1: nDptr_ReadSingleLib+2;
+            if(nDptr_ReadSingleLib >= nLib_1s)
+            {
+              nDptr_ReadSingleLib = 0;
+              nDptr_ReadLibs = (++nDptr_ReadLibs) % nMaxLibs
+              nLibs_Ready--;
+            }
+
+          }
+          else
+          {
+            BCG_Value = 127;
+            CES_Value = 127;
+            drawPoint();
+            drawPoint();
+          }
+        }
+
+        function drawPoint() {
+          if(isFirstDraw) {
+            yOld_BCG = dealBCG(BCG_Value);
+            yOld_CES = dealCES(CES_Value);
+
+            isFirstDraw = false;
+            return;
+          }
+
+          var yPos_BCG = dealBCG(BCG_Value);
+          var yPos_CES = dealCES(CES_Value);
+
+          //覆盖之前的图形，用于绘制新的波形
+          if(xOld + 1 >= nCanvasWidth)
+          {
+            xOld = 0;
+            canvas_DC_Draw.fillRect(xOld, 0, 4, nCanvasHeight);
+          }
+          else if(xOld < nCanvasWidth - 3)
+          {
+            canvas_DC_Draw.fillRect(xOld + 3, 0, 1, nCanvasHeight);
+          }
+
+          //绘制新的波形
+          canvas_DC_Draw.beginPath();
+          canvas_DC_Draw.strokeStyle ="Lime";
+          canvas_DC_Draw.moveTo(xOld, yOld_BCG);
+          canvas_DC_Draw.lineTo(xOld + 1,yPos_BCG);
+          canvas_DC_Draw.stroke();
+
+          canvas_DC_Draw.beginPath();
+          canvas_DC_Draw.strokeStyle = "SkyBlue";
+          canvas_DC_Draw.moveTo(xOld,yOld_CES);
+          canvas_DC_Draw.lineTo(xOld + 1,yPos_CES);
+          canvas_DC_Draw.stroke();
+
+          xOld++;
+
+          yOld_BCG = yPos_BCG;
+          yOld_CES = yPos_CES;
+        }
+
+        //初始化信息
+        function Init0() {
+          //基本数据
+          srcData_Buf = [];
+          strBedID = '20101';
+          strURI_Server = 'ws://192.168.1.248:7749';
+
+          nData_Receive_1s = 250;
+          nSingleLib = 5;
+          nLib_1s = 50;
+          nLibs_Ready = -1;
+          nDptr_Read = 0;
+          nMaxLibs = 5;
+          nDptr_WriteLibs = 0;
+          nDptr_ReadLibs = 0;
+          nDptr_ReadSingleLib = 0;
+          nDptr_BCG = 2;
+          nDptr_CES = 4;
+
+          //绘图信息
+          let canvas = document.getElementById('canvas');
+          console.log(canvas);
+          canvas_DC_Draw = canvas.getContext('2d');
+          canvas_DC_Draw.lineWidth = 2;
+          nCanvasWidth = canvas.width;
+          nCanvasHeight = canvas.height;
+
+          canvas_DC_Draw.fillStyle = "Black";
+          canvas_DC_Draw.fillRect(0, 0, nCanvasWidth, nCanvasHeight);
+
+          isFirstDraw = true;
+
+          xOld = 0;
+          yOld_BCG = 0;
+          yOld_CES = 0;
+
+          yBCG_Min = 0;
+          yBCG_Max = nCanvasHeight / 2;
+          yCES_Min = nCanvasHeight / 2;
+          yCES_Max = nCanvasHeight;
+        }
+
+        function checkWebSocket () {
+          try
+          {
+            var dummy = new WebSocket('ws://localhost:8989/test');
+          }
+          catch(ex)
+          {
+            try
+            {
+              webSocket = new MozWebSocket('ws://localhost:8989/test');
+            }
+            catch(ex)
+            {
+              isExisit_WebSocket = false;
+            }
+          }
+
+          if(!isCreate_WebSocket && isExisit_WebSocket)
+          {
+            //连接服务器
+            try
+            {
+              if('WebSocket' in window)
+              {
+                myWebSocketClient = new WebSocket(strURI_Server);
+              }
+              else if('MozWebSocket' in window)
+              {
+                myWebSocketClient = new MozWebSocket(strURI_Server);
+              }
+              isCreate_WebSocket = true;
+            }
+            catch(ex)
+            {
+              console.log(ex);
+              return;
+            }
+
+            myWebSocketClient.binaryType = 'ayyarybuffer';
+            myWebSocketClient.onopen     = myWebSocketClient_OnOpen;
+            myWebSocketClient.onmessage  = myWebSocketClient_OnMessage;
+            myWebSocketClient.onclose    = myWebSocketClient_OnClose;
+            myWebSocketClient.onerror    = myWebSocketClient_OnError;
+          }
+        }
+
+        Init0();
+        checkWebSocket();
+        setInterval(prepare, 40);
+      },
     }
   }
 </script>
 
 <style scoped>
-
+@import "../assets/css/dashborad.css";
   .dashboard-navi {
     margin-bottom: 5px;
   }
@@ -943,11 +1245,84 @@
     transition: all .3s cubic-bezier(1.0, 0.5, 0.8, 1.0);
   }
 
-  .alarm{
+  .alarm {
     color: #C23531;
   }
-  .alarm span{
+
+  .alarm span {
     display: inline-block;
     width: 200px;
   }
+
+  .dWrap {
+    border: 1px solid #333;
+    width: 805px;
+    height: 500px;
+  }
+
+  .d-left, .d-right {
+    float: left;
+    height: 500px;
+  }
+
+  .d-left {
+    width: 240px;
+    box-sizing: border-box;
+  }
+
+  .d-right {
+    width: 564px;
+    border-left: 1px solid #333;
+  }
+
+  .block1 {
+    margin: 20px 10px 10px;
+  }
+
+  .block1 p {
+    height: 30px;
+    line-height: 30px;
+  }
+
+  .block1 .label {
+    width: 68px;
+    display: inline-block;
+    overflow: hidden;
+    height: 22px;
+    text-align: justify;
+    text-align-last: justify;
+  }
+  .block1 span:after{
+    display:inline-block;
+    content:'';
+    overflow:hidden;
+    width:100%;
+    height:0;
+  }
+
+  .block2 {
+    border-top: 1px solid #000;
+    font-size: 80px;
+    padding: 0 20px;
+    letter-spacing: 15px;
+    color: #FFFF38;
+  }
+
+  .block3, .block4{
+    border-top: 1px solid #000;
+    padding: 5px 20px;
+  }
+
+  .block3 .val, .block4 .val {
+    font-size: 50px;
+  }
+
+  .block3{
+    color: #2DFEFE;
+  }
+
+  .block4 {
+    color: #8285FC;
+  }
+
 </style>
